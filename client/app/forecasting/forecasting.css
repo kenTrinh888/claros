@@ -1,0 +1,73 @@
+.forecast {
+    margin-top: 0px;
+    margin-right: 0px;
+}
+
+.box-forecasting {
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+
+/*.d4 .negative.fill,
+#waterfall .d4 .negative.fill {
+    fill: #CD202C;
+}
+
+.d4 .positive.fill,
+#waterfall .d4 .positive.fill {
+    fill: #002960;
+}
+
+.subtotal {
+    fill: #0065BD;
+}
+*/
+
+.d4 .bar.negative.fill {
+    fill: darkred;
+}
+
+.d4 .bar.positive.fill {
+    fill: steelblue;
+}
+
+.d4 .bar.subtotal.fill {
+    fill: lightblue;
+}
+
+.c3-selected-circle {
+    fill: white;
+    stroke-width: 2px;
+}
+
+.c3-region.regionY::before {
+    content: "Joe's Task:";
+    fill: grey;
+}
+
+.c3-focused {
+    stroke: 5px #ccc;
+}
+
+#chart {
+    width: 100%;
+    min-height: 200px;
+}
+
+#sell-in {
+    width: 100%;
+    min-height: 200px;
+}
+
+#sell-out {
+    width: 100%;
+    min-height: 200px;
+}
+
+#waterfall {
+    width: 100%;
+    height: 250px;
+}
+

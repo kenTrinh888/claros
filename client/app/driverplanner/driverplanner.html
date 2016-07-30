@@ -1,0 +1,265 @@
+<div gridster="gridsterFilterForDriverPlanner" style="margin-top:-25px">
+    <ul class="with-3d-shadow with-transitions">
+        <li gridster-item="item" ng-repeat="item in filteritem">
+            <div class="box">
+                <div class="box-centent-driverplanner">
+                    <div class="col-md-2 promotionfilter">
+                        <h3 style="color:#F18630"> OPTIMISATION PLANNER</h3>
+                    </div>
+                    <divng ng-if="user.role === 'Pharma'" class="form-group col-md-4" style="margin-top:7px;">
+                        <div class="col-md-3">
+                            <label for="drug"> Drug </label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen.id" style="width:200px">
+                            </select>
+                        </div>
+                </div>
+                <div ng-if="user.role === 'CPG'" class="form-group col-md-3" style="margin-top:7px;">
+                    <div class="col-md-3">
+                        <label for="promotionactivity"> Customer </label>
+                    </div>
+                    <div class="col-md-3">
+                        <!-- <select name="promotionactivity" id="promotionactivity" class="form-control" ng-model="scenario.promotionactivity " ng-change="updateModel(scenario)" style="width:200px">
+                                <option ng-repeat="option in Category" value="{{option.name}}">{{option.name}}</option>
+                            </select> -->
+                        <select class="form-control" ng-model="Customer.name" style="width:120px">
+                            <option value="All">All</option>
+                            <option value="Grofers">Grofers</option>
+                            <option value="Freshdirect">Freshdirect</option>
+                            <option value="Localbanya">Localbanya</option>
+                            <option value="Bigbasket">Bigbasket</option>
+                            <option value="Naturesbasket">Naturesbasket</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-md-2" style="margin-top:10px">
+                    <div class="col-md-3">
+                        <label for="promotionactivity"> KPI </label>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" ng-model="kpi.name" style="width:120px">
+                            <option value="Revenue">Revenue</option>
+                            <option value="Volume">Volume</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-md-2" style="margin-top:10px">
+                    <div class="col-md-3">
+                        <label for="promotionactivity"> Time Period </label>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" ng-model="period.time" style="width:120px">
+                            <option value="6">6 months</option>
+                            <option value="12">12 months</option>
+                        </select>
+                    </div>
+                </div>
+                <a class="pull-right btn btn-primary analyse-button-driver" ng-click="DisplayScenario()" style="margin-top:10px">Analyse</a>
+            </div>
+        </li>
+    </ul>
+</div>
+<div>
+    <input type="hidden" id="analyse" ng-click="broadcast()">
+    <input type="hidden" id="dataChartAdd" ng-click="addChartData(allscenarios)">
+    <input type="hidden" id="dataChartAddRevenue" ng-click="dataChartAddRevenue(allscenarios)">
+</div>
+<div ng-show="displayScenario">
+    <div ng-show="user.role ==='Pharma'">
+        <div class="vertical_scroll">
+            <div gridster="gridsterOption">
+                <ul>
+                    <li gridster-item ng-repeat="scenario in allscenarios" size-x="6">
+                        <div class="box">
+                            <div class="box-header">
+                                <h3>{{ scenario.name }}</h3>
+                                <div class="box-header-btns pull-right">
+                                    <a title="settings" ng-click="openSettings(scenario)"><i class="glyphicon glyphicon-cog"></i></a>
+                                    <a title="Remove scenario" ng-click="remove(scenario)"><i class="glyphicon glyphicon-trash"></i></a>
+                                </div>
+                            </div>
+                            <div class="box-content">
+                                <div class="col-md-12" style="margin:auto">
+                                    <div class="col-md-4">
+                                        <table>
+                                            <thead style="text-align:center">
+                                                <tr class="basic-tablehead">
+                                                    <th colspan="2">KOL Activity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="kol in scenario.KOLActivity">
+                                                    <td>{{kol.ActivityName}}</td>
+                                                    <td style="width:170px">
+                                                        <rzslider rz-slider-model="kol.Impact" rz-slider-options="impactRange.options"></rzslider>
+                                                    </td>
+                                                    <!--   <td>{{kol.Impact}}</td> -->
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <table>
+                                            <thead>
+                                                <tr class="basic-tablehead">
+                                                    <th colspan="2">Innovation</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="innovation in scenario.Innovation">
+                                                    <td>{{innovation.ActivityName}}</td>
+                                                    <td style="width:170px">
+                                                        <rzslider rz-slider-model="innovation.Impact" rz-slider-options="impactRange.options"></rzslider>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <table>
+                                            <thead>
+                                                <tr class="basic-tablehead">
+                                                    <th colspan="2">Sales And Discount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-repeat="sales in scenario.SalesandDiscount">
+                                                    <td>{{sales.ActivityName}}</td>
+                                                    <td style="width:170px">
+                                                        <rzslider rz-slider-model="sales.Impact" rz-slider-options="impactRange.options"></rzslider>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="updateModel" ng-click="updateModel(scenario)">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ng-show="user.role==='CPG'">
+        <div class="vertical_scroll_driverCPG">
+            <div gridster="gridsterOption">
+                <ul>
+                    <li gridster-item="scenario" ng-repeat="scenario in allscenarios">
+                        <div class="box">
+                            <div class="box-header">
+                                <h3>{{ scenario.name }}</h3>
+                                <div class="box-header-btns pull-right">
+                                    <a title="settings" ng-click="openSettings(scenario)"><i class="glyphicon glyphicon-cog"></i></a>
+                                    <a title="Remove scenario" ng-click="remove(scenario)"><i class="glyphicon glyphicon-trash"></i></a>
+                                </div>
+                            </div>
+                            <div class="box-content">
+                                <form class="form-horizontal" role="form">
+                                    <div class="form-group" style="width:350px">
+                                        <label for="budget" class="col-sm-5 control-label">Online Investment</label>
+                                        <div class="col-sm-7" style="margin-top:-20px">
+                                            <!--  <rzslider rz-slider-model="scenario.budget" rz-slider-options="budgetRange.options"></rzslider> -->
+                                            <rzslider rz-slider-model="scenario.BrandPromotion" rz-slider-options="OnlineInvestment.options"></rzslider>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="width:350px">
+                                        <label for="interval" class="col-sm-5 control-label">Share of Media Spend</label>
+                                        <div class="col-sm-7" style="margin-top:-15px">
+                                            <rzslider rz-slider-model="scenario.InstoreMarketing" rz-slider-options="ShareofMedia.options" style="margin-left:5px"></rzslider>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="width:350px">
+                                        <label for="frequency" class="col-sm-5 control-label">Promotional Support</label>
+                                        <div class="col-sm-7" style="margin-top:-15px">
+                                            <rzslider rz-slider-model="scenario.InstorePromotion" rz-slider-options="PromotionSupport.options"></rzslider>
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="width:350px">
+                                        <label for="discount" class="col-sm-5 control-label" style="overflow: hidden;">Pricing Premium Vs Competition</label>
+                                        <div class="col-sm-7" style="margin-top:-15px">
+                                            <rzslider rz-slider-model="scenario.CompetitorPromotion" rz-slider-options="PricingPremium.options"></rzslider>
+                                        </div>
+                                    </div>
+                                    <label for="discount" class="col-sm-5 control-label" style="margin-top:-20px"> Competition</label>
+                                    <input type="hidden" id="updateModel" ng-click="updateModel(scenario)">
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div>
+        <a class="pull-left btn btn-primary analyse-button" ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
+        <a class="pull-left btn btn-primary analyse-button" ng-click="DisplayMonthlyPlanning()"></i> Monthly Planning</a>
+    </div>
+    <div gridster="gridsterItem" style="margin-top:20px">
+        <ul class="with-3d-shadow with-transitions">
+            <li gridster-item="item" ng-repeat="item in standardItems">
+                <div class="box">
+                    <div class="box-header">
+                        <h3>{{item.name}}</h3>
+                    </div>
+                    <div class="box-content">
+                        <nvd3 ng-if="$index === 0" options="options" data="dataChart" config="config" api="item.api" events="events"></nvd3>
+                        <nvd3 ng-if="$index === 1" options="optionsCat" data="dataChartRevenue" config="config" events="events" api="item.api"></nvd3>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+<div ng-show="displayMonthlyPlanning">
+    <div class="vertical_scroll_Monthly">
+        <div gridster="gridstermonthlyBudget">
+            <ul>
+                <li gridster-item size-x="6" ng-repeat="event in monthlyBudget" class="gridster-item-basic">
+                    <div class="box-basic">
+                        <div class="box-header">
+                            <h3>{{ event.name }}</h3>
+                        </div>
+                        <div class="box-content">
+                            <table style="border:1px solid #ccc;margin:auto">
+                                <tr class="basic-tablehead">
+                                    <th>Drivers</th>
+                                    <th ng-repeat="month in months">{{month}}</th>
+                                    <!-- <th>% Impact</th> -->
+                                </tr>
+                                <tr ng-repeat="monthbudget in event.monthlybudget" class="basic-tablerow">
+                                    <td>{{ monthbudget.driver }}</td>
+                                    <td ng-repeat="budget in monthbudget.month track by $index">
+                                        <span inline-edit="budget" inline-edit-validation="myUpdateHandler($index,newValue)" inline-edit-filter="currency" inline-edit-on-blur="cancel"></span>
+                                    </td>
+                        </div>
+                        </td>
+                        </tr>
+                        </table>
+                        <input type="hidden" id="updateModel" ng-click="updateModel(event)">
+                        <input type="hidden" id="countmonthlybudget" ng-click="countmonthlybudget()">
+                    </div>
+        </div>
+        </li>
+        </ul>
+    </div>
+</div>
+<div ng-show="displayMonthlyPlanning">
+    <div gridster="gridsterLineChart">
+        <ul>
+            <li gridster-item="brand" ng-repeat=" category in GridsterItemforLineChart" class="gridster-item-basic">
+                <div class="box-driver-linechart">
+                    <div class="box-header">
+                        <h3>{{ category.name }}</h3>
+                    </div>
+                    <div class="box-content">
+                        <div ng-if="$index === 0" id="foodanddrink"></div>
+                        <div ng-if="$index === 1" id="homecare"></div>
+                        <div ng-if="$index === 2" id="personalcare"></div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

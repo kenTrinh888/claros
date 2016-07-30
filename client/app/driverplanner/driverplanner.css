@@ -1,0 +1,83 @@
+.box-centent-driverplanner {
+    width: 100%;
+}
+
+.analyse-button-driver {
+    margin-right: 5px;
+    margin-left: 0px;
+    background-color: #F18630;
+    border-color: #F18630
+}
+
+.driver-scenario-width {
+    margin-top: -20px
+}
+
+.vertical_scroll_Line_Chart {
+    margin-top: 20px;
+    width: 100%;
+    height: 205px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+    border: 1px solid #ccc;
+}
+
+.vertical_scroll_Monthly {
+    margin-top: 20px;
+    width: 100%;
+    height: 270px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+    border: 1px solid #ccc;
+}
+
+.box-driver-linechart {
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.box-content-pharma {
+    padding: 20px;
+}
+
+.box-pharma {
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.box-header-pharma {
+    background-color: #44546A;
+    padding: 0 30px 0 10px;
+    border-bottom: 1px solid #ccc;
+    cursor: move;
+    position: relative;
+    text-align: center;
+}
+
+.box-header-pharma h3 {
+    margin-top: 10px;
+    display: inline-block;
+    color: white;
+}
+
+.vertical_scroll_driver {
+    margin: auto;
+    width: 100%;
+    height: 350px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+}
+
+.vertical_scroll_driverCPG {
+    margin: auto;
+    width: 100%;
+    height: 360px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+}

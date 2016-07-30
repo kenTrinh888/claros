@@ -1,0 +1,212 @@
+/**
+ * Bootstrap Fonts
+ */
+
+@font-face {
+    font-family: 'Glyphicons Halflings';
+    src: url('../bower_components/bootstrap/fonts/glyphicons-halflings-regular.eot');
+    src: url('../bower_components/bootstrap/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff') format('woff'), url('../bower_components/bootstrap/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../bower_components/bootstrap/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+}
+
+
+/**
+ *Font Awesome Fonts
+ */
+
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../bower_components/font-awesome/fonts/fontawesome-webfont.eot?v=4.1.0');
+    src: url('../bower_components/font-awesome/fonts/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype'), url('../bower_components/font-awesome/fonts/fontawesome-webfont.woff?v=4.1.0') format('woff'), url('../bower_components/font-awesome/fonts/fontawesome-webfont.ttf?v=4.1.0') format('truetype'), url('../bower_components/font-awesome/fonts/fontawesome-webfont.svg?v=4.1.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/**
+ * App-wide Styles
+ */
+
+.browserupgrade {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+
+/*Navigation bar*/
+
+
+/* --- Style --- */
+
+.navbar-default {
+    background-color: #45ADA8;
+    border-color: #388C88;
+}
+
+.navbar-default .navbar-brand {
+    color: #ecf0f1;
+}
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+    color: #7BCBC7;
+}
+
+.navbar-default .navbar-nav > li > a {
+    color: #ecf0f1;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #7BCBC7;
+}
+
+.navbar-default .navbar-nav .active > a,
+.navbar-default .navbar-nav .active > a:hover,
+.navbar-default .navbar-nav .active > a:focus {
+    color: #7BCBC7;
+    background-color: #388C88;
+}
+
+.navbar-default .navbar-nav .open > a,
+.navbar-default .navbar-nav .open > a:hover,
+.navbar-default .navbar-nav .open > a:focus {
+    color: #7BCBC7;
+    background-color: #388C88;
+}
+
+.navbar-default .navbar-nav .open > a .caret,
+.navbar-default .navbar-nav .open > a:hover .caret,
+.navbar-default .navbar-nav .open > a:focus .caret {
+    border-top-color: #7BCBC7;
+    border-bottom-color: #7BCBC7;
+}
+
+.navbar-default .navbar-nav > .dropdown > a .caret {
+    border-top-color: #ecf0f1;
+    border-bottom-color: #ecf0f1;
+}
+
+.navbar-default .navbar-nav > .dropdown > a:hover .caret,
+.navbar-default .navbar-nav > .dropdown > a:focus .caret {
+    border-top-color: #7BCBC7;
+    border-bottom-color: #7BCBC7;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #388C88;
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: #388C88;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #ecf0f1;
+}
+
+@media (max-width: 767px) {
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+        color: #ecf0f1;
+    }
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+        color: #7BCBC7;
+        background-color: #388C88;
+    }
+}
+
+.navbar-brand {
+    padding: 0px;
+    /* firefox bug fix */
+}
+
+.navbar-brand>img {
+    height: 100%;
+    margin-top: -1px;
+    width: auto;
+}
+
+.navbar-default {
+    color: #ecf0f1;
+    min-height: 28px;
+}
+
+.navbar-nav > li > a, .navbar-brand{
+    padding-top:4px !important; 
+    padding-bottom:0 !important;
+    height: 28px;
+}
+.navbar-nav > p {
+    padding-top:4px !important; 
+    padding-bottom:0 !important;
+    height: 28px;
+}
+
+.navbar-text {
+    margin-bottom: 0px
+}
+
+.navbar {
+    min-height:28px !important;
+    /*height: 28px*/
+}
+
+
+/* centered columns styles */
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+    width:30%;
+}
+/*.navbar {
+    min-height: 20px;
+    height: 30px
+}
+
+#navbar-main {
+    min-height: 20px;
+    height: 30px
+}*/
+/*.tnav .navbar .container { height: 28px; }*/
+
+/* navbar */
+/*.navbar-primary .navbar { background:#45ADA8; border-bottom:none; }
+.navbar-primary .navbar .nav > li > a {color: #7BCBC7;}
+.navbar-primary .navbar .nav > li > a:hover {color: #fff; background-color: #388C88;}
+.navbar-primary .navbar .nav .active > a,.navbar .nav .active > a:hover {color: #fff; background-color: #7BCBC7;}
+.navbar-primary .navbar .nav li > a .caret, .tnav .navbar .nav li > a:hover .caret {border-top-color: #fff;border-bottom-color: #fff;}
+.navbar-primary .navbar .nav > li.dropdown.open.active > a:hover {}
+.navbar-primary .navbar .nav > li.dropdown.open > a {color: #fff;background-color: #45ADA8;border-color: #fff;}
+.navbar-primary .navbar .nav > li.dropdown.open.active > a:hover .caret, .tnav .navbar .nav > li.dropdown.open > a .caret {border-top-color: #fff;}
+.navbar-primary .navbar .navbar-brand {color:#fff;}
+.navbar-primary .navbar .nav.pull-right {margin-left: 10px; margin-right: 0;}
+.navbar-xs .navbar-primary .navbar { min-height:28px; height: 28px; }
+.navbar-xs .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 28px; }
+.navbar-xs .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 28px; }
+.navbar-sm .navbar-primary .navbar { min-height:40px; height: 40px; }
+.navbar-sm .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 40px; }
+.navbar-sm .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 40px; }*/
+
+.filter {
+    height: 100px;
+    width: 1000px;
+    border: 1px solid #ccc;
+    margin-left:20px;
+    margin-right:20px;
+}
+
+/*login page*/
+
+.navbar-default .navbar-text {
+    color:  #004fa7;
+}
