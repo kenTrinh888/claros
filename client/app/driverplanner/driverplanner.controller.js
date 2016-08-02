@@ -1,239 +1,377 @@
 'use strict';
 angular.module('clarosApp')
-    .controller('driverplannerCtrl', function($http, $scope, socket, $timeout, $window, $uibModal, Auth) {
-        // $scope.gridsterOptionsDriverPlannerPharma = {};
-        // $scope.gridsterOptionsDriverPlanner = {};
-        $scope.user = Auth.getCurrentUser(function(data) {
-            $scope.user = data;
-            $scope.gridsterOption = {
-                margins: [50, 50],
-                // columns: 1,
-                draggable: {
-                    handle: 'h3'
-                },
-                pushing: true,
-                mobileModeEnabled: true,
-                resizable: {
-                    enabled: true,
-                    handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-                    start: function(event, $element, widget) {}, // optional callback fired when resize is started,
-                    resize: function(event, $element, widget) {
+    .controller('driverplannerCtrl', function($scope, $http, socket, $timeout, $window, $uibModal, Auth) {
+        $('#arrangePosition').trigger('click');
+        $scope.displayScenario = true;
+        $http({
+            method: 'GET',
+            url: '/api/drugs/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.drugs = data;
+            console.log($scope.drugs)
+            $scope.drugChosen = $scope.drugs[0];
+            $timeout(function() {
+                $('#getAllDriverScenario').trigger('click');
+            })
+        }).error(function(data) {
+            console.log("Error retrieved drugs");
+        });
 
-                    }, // optional callback fired when item is resized,
-                    stop: function(event, $element, widget) {} // optional callback fired when item is finished resizing
-                },
-
-                // colWidth: 400,
-                rowHeight: 350
-            };
-            // Draw Bar Chart for Correlation
-            $scope.dataChart = [];
-            var driversplanner = [];
-            if ($scope.user.role === "CPG") {
-                driversplanner = ["Online Investment", "Offline Investment", "Promotional Support", "Competitor Promotion"];
-            } else {
-                driversplanner = ["KOL Activity", "Innovation", "Sales and Discount"];
-                // var valuesCorrelation = [[.1,.4,.3,.2],[-.1,.2,.2,.6],[-0.5,.5,.5,-.5],[0.2,.2,.1,.5]]
-            }
-            $scope.addChartData = function(scenarios) {
-                // for (var i in driversplanner) {
-                //     var adrivers = scenarios[i];
-                //     var name = aScenario.name;
-                // }
-                $scope.dataChart = [];
-
-                for (var x in driversplanner) {
-                    var driverName = driversplanner[x];
-                    var ChartObject = {};
-                    ChartObject['key'] = driverName
-                    ChartObject['values'] = []
-                    for (var i in scenarios) {
-                        var valueObject = {};
-
-                        valueObject['label'] = scenarios[i].name;
-                        valueObject['value'] = _.random(-0.5, 0.5);
-                        ChartObject.values.push(valueObject);
+        $scope.getDriverScenario = function(drugid) {
+                $http({
+                    method: 'GET',
+                    url: '/api/driverplanners/'
+                }).success(function(data) {
+                    $scope.allscenarios = [];
+                    for (var i in data) {
+                        var aEvent = data[i];
+                        if (aEvent.drug == drugid) {
+                            $scope.allscenarios.push(aEvent)
+                        }
                     }
-                    $scope.dataChart.push(ChartObject);
-                }
-
-                console.log($scope.dataChart);
+                    socket.syncUpdates('driverplanner', $scope.allscenarios);
+                    setTimeout(function() {
+                        $('#arrangePosition').trigger('click');
+                        // $("#generateGraph").trigger('click')
+                    }, 100);
+                }).error(function(data) {
+                    console.log("Error retrieved driver planner ");
+                });
             }
-
-            // init dashboard
-            $scope.options = {
-                chart: {
-                    type: 'multiBarHorizontalChart',
-                    "height": 150,
-                    margin: {
-                        top: 0,
-                        right: 20,
-                        bottom: 60,
-                        left: 62
-                    },
-                    x: function(d) {
-                        return d.label;
-                    },
-                    y: function(d) {
-                        return d.value;
-                    },
-                    showValues: true,
-                    valueFormat: function(d) {
-                        return d3.format(',.0f')(d);
-                    },
-                    duration: 500,
-                    xAxis: {
-                        // tickSize: 5,
-                        // axisLabel: 'Scenario',
-                        // axisLabelDistance: 5
-                    },
-                    yAxis: {
-                        axisLabel: 'Correlation',
-                        axisLabelDistance: -5
-                    },
-                    showControls: false,
-                    "stacked": true,
-                    yDomain: [-1, 1],
-
-                }
-            };
-
-            // bar Chart for Expect Revenue
-            $scope.dataChartRevenue = [];
-            $scope.dataChartAddRevenue = function(scenarios) {
-                $scope.dataChartRevenue = [];
-                for (var i in scenarios) {
-                    var aScenario = scenarios[i];
-                    var name = aScenario.name;
-                    var BaseCase = 800
-                    var FoodDrink = _.random(400, 1000);
-                    var HomeCare = _.random(400, 1000);
-                    var PersonalCare = _.random(400, 1000);
-                    // var CompetitorPromotion = _.random(400, 1000);
-
-
-                    var ChartObject = {
-                        "key": name,
-                        "values": [{
-                            "label": "All",
-                            "value": BaseCase
-                        }, {
-                            "label": "Government",
-                            "value": FoodDrink
-                        }, {
-                            "label": "Pharmacy",
-                            "value": HomeCare
-                        }, {
-                            "label": "Hospital",
-                            "value": PersonalCare
-                        }]
-                    }
-                    $scope.dataChartRevenue.push(ChartObject)
-                }
-
-                console.log($scope.dataChartRevenue)
-            }
-
-            // init dashboard
-            $scope.optionsCat = {
-                chart: {
-                    type: 'multiBarChart',
-                    "height": 120,
-                    margin: {
-                        top: 0,
-                        right: 20,
-                        bottom: 30,
-                        left: 55
-                    },
-                    x: function(d) {
-                        return d.label;
-                    },
-                    y: function(d) {
-                        return d.value;
-                    },
-                    showValues: true,
-                    valueFormat: function(d) {
-                        return d3.format(',.0f')(d);
-                    },
-                    duration: 500,
-                    xAxis: {
-                        axisLabel: 'Category',
-                        axisLabelDistance: -10
-                    },
-                    yAxis: {
-                        axisLabel: 'Revenue',
-                        axisLabelDistance: -5
-                    }
-
-                }
-            };
-
-            // bar Chart for Expect Revenue
-
-
-        })
-
-
-
-
-
-        $scope.impactRange = {
+            // =================// Slider option Setting==================================================
+        $scope.KOLevent = {
             options: {
                 showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 1000,
+                step: 1
+            }
+        };
+        $scope.KOLSponsoship = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
                 floor: 0,
                 ceil: 100,
+                step: 1,
                 translate: function(value, sliderId, label) {
                     switch (label) {
-                        default: return value + "%"
+                        default: return value + '$'
                     }
                 }
             }
         };
+        $scope.DetailingCoverage = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 100,
+                step: 1,
+                translate: function(value, sliderId, label) {
+                    switch (label) {
+                        default: return value + '%'
+                    }
+                }
+            }
+        };
+        $scope.InnovationImpact = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 1,
+                ceil: 5,
+                step: 1
+            }
+        };
+        $scope.InnovationDuration = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 36,
+                step: 1,
+                translate: function(value, sliderId, label) {
+                    switch (label) {
+                        default: return value + 'month(s)'
+                    }
+                }
+            }
+        };
+        $scope.InnovationDuration = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 36,
+                step: 1
+            }
+        };
+        $scope.SalesCoverage = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 100,
+                step: 1,
+                translate: function(value, sliderId, label) {
+                    switch (label) {
+                        default: return value + '%'
+                    }
+                }
+            }
+        };
+        $scope.SalesFrequency = {
+            options: {
+                showSelectionBar: true,
+                // showSelectionBarEnd: true,
+                floor: 0,
+                ceil: 10,
+                step: 1
+            }
+        };
+
+        //=========================================================================
+
+        $scope.gridsterOption = {
+            margins: [20, 20],
+            // columns: 1,
+            draggable: {
+                handle: 'h3'
+            },
+            pushing: true,
+            mobileModeEnabled: true,
+            resizable: {
+                enabled: true,
+                handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+                start: function(event, $element, widget) {}, // optional callback fired when resize is started,
+                resize: function(event, $element, widget) {
+
+                }, // optional callback fired when item is resized,
+                stop: function(event, $element, widget) {} // optional callback fired when item is finished resizing
+            },
+
+            // colWidth: 400,
+            rowHeight: 200
+        };
+        //=====Resize for Ipad=================================================
+
+        $scope.resizeIpad = function() {
+                if ($window.innerWidth < 785 && $window.innerWidth > 700) {
+                    console.log("Change Screen Ipad Mini");
+                    $scope.gridsterOption = {
+                        margins: [20, 20],
+                        // columns: 1,
+                        // pushing: true,
+                        draggable: {
+                            handle: 'h3'
+                        },
+                        mobileModeEnabled: true,
+                        resizable: {
+                            enabled: true,
+                            handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
 
 
-        // Drug Filter===============================================================
-        $scope.drugChosen = {
-            "id": 2,
-            name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
+                            // optional callback fired when resize is started
+                            start: function(event, $element, item) {},
+
+                            // optional callback fired when item is resized,
+                            resize: function(event, $element, item) {
+                                if (item.api) item.api.update();
+                                // console.log(event)
+                            },
+
+                            // optional callback fired when item is finished resizing 
+                            stop: function(event, $element, item) {
+                                $timeout(function() {
+                                    if (item.api) item.api.update();
+                                    // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+                                }, 400)
+                            }
+                        },
+                        // colWidth: 'auto',
+                        rowHeight: 400,
+                        // minSizeY: 2,
+                    };
+                } else {
+                    $scope.gridsterOption = {
+                        margins: [20, 20],
+                        // columns: 1,
+                        draggable: {
+                            handle: 'h3'
+                        },
+                        pushing: true,
+                        mobileModeEnabled: true,
+                        resizable: {
+                            enabled: true,
+                            handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+                            start: function(event, $element, widget) {}, // optional callback fired when resize is started,
+                            resize: function(event, $element, widget) {
+
+                            }, // optional callback fired when item is resized,
+                            stop: function(event, $element, widget) {} // optional callback fired when item is finished resizing
+                        },
+
+                        // colWidth: 400,
+                        rowHeight: 200
+                    };
+                }
+            }
+            // ===================Resize Ipad====================
+        $scope.resizeIpad();
+
+        //=====Resize for Ipad=================================================
+
+        // Draw Bar Chart for Correlation
+        $scope.dataChart = [];
+        var driversplanner = ["KOL Activity", "Innovation", "Sales and Discount"];
+        $scope.addChartData = function(scenarios) {
+            // for (var i in driversplanner) {
+            //     var adrivers = scenarios[i];
+            //     var name = aScenario.name;
+            // }
+            $scope.dataChart = [];
+
+            for (var x in driversplanner) {
+                var driverName = driversplanner[x];
+                var ChartObject = {};
+                ChartObject['key'] = driverName
+                ChartObject['values'] = []
+                for (var i in scenarios) {
+                    var valueObject = {};
+
+                    valueObject['label'] = scenarios[i].name;
+                    valueObject['value'] = _.random(-0.5, 0.5);
+                    ChartObject.values.push(valueObject);
+                }
+                $scope.dataChart.push(ChartObject);
+            }
+
+            console.log($scope.dataChart);
         }
-        $scope.drugs = [{
-            "id": 2,
-            name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
-        }, {
-            "id": 3,
-            name: "Adcirca, Pulmonary arterial hypertension"
-        }, {
-            "id": 4,
-            name: "Belsomra, Insomnia"
-        }, {
-            "id": 5,
-            name: "Corlanor, Chronic heart failure"
-        }, {
-            "id": 6,
-            name: "Tekamlo, Hypertension"
-        }];
 
-        // Drug Filter===============================================================
-        // gridsterFilter for Driver Planner
-        $scope.DisplayScenario = function() {
-            $scope.displayScenario = true;
-            $scope.displayMonthlyPlanning = false;
-            setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
-            setTimeout(function() { $('#dataChartAddRevenue').trigger('click'); }, 100);
+        // init dashboard
+        $scope.options = {
+            chart: {
+                type: 'multiBarHorizontalChart',
+                "height": 150,
+                margin: {
+                    top: 0,
+                    right: 20,
+                    bottom: 60,
+                    left: 62
+                },
+                x: function(d) {
+                    return d.label;
+                },
+                y: function(d) {
+                    return d.value;
+                },
+                showValues: true,
+                valueFormat: function(d) {
+                    return d3.format(',.0f')(d);
+                },
+                duration: 500,
+                xAxis: {
+                    // tickSize: 5,
+                    // axisLabel: 'Scenario',
+                    // axisLabelDistance: 5
+                },
+                yAxis: {
+                    axisLabel: 'Correlation',
+                    axisLabelDistance: -5
+                },
+                showControls: false,
+                "stacked": true,
+                yDomain: [-1, 1],
+
+            }
+        };
+
+        // bar Chart for Expect Revenue
+        $scope.dataChartRevenue = [];
+        $scope.dataChartAddRevenue = function(scenarios) {
+            $scope.dataChartRevenue = [];
+            for (var i in scenarios) {
+                var aScenario = scenarios[i];
+                var name = aScenario.name;
+                var BaseCase = 800
+                var FoodDrink = _.random(400, 1000);
+                var HomeCare = _.random(400, 1000);
+                var PersonalCare = _.random(400, 1000);
+                // var CompetitorPromotion = _.random(400, 1000);
 
 
+                var ChartObject = {
+                    "key": name,
+                    "values": [{
+                        "label": "All",
+                        "value": BaseCase
+                    }, {
+                        "label": "Government",
+                        "value": FoodDrink
+                    }, {
+                        "label": "Pharmacy",
+                        "value": HomeCare
+                    }, {
+                        "label": "Hospital",
+                        "value": PersonalCare
+                    }]
+                }
+                $scope.dataChartRevenue.push(ChartObject)
+            }
+
+            console.log($scope.dataChartRevenue)
         }
-        $scope.DisplayMonthlyPlanning = function() {
-            $scope.displayScenario = false;
-            $scope.displayMonthlyPlanning = true;
-            $scope.countmonthlybudget();
-            // console.log($('.box-driver-linechart').height());
-            setTimeout(function() { $("#countmonthlybudget").click() }, 200);
-            setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#foodanddrink') }, 200);
-            setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#personalcare') }, 200);
-            setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#homecare') }, 200);
-        }
+
+        // init dashboard
+        $scope.optionsCat = {
+            chart: {
+                type: 'multiBarChart',
+                "height": 120,
+                margin: {
+                    top: 0,
+                    right: 20,
+                    bottom: 30,
+                    left: 55
+                },
+                x: function(d) {
+                    return d.label;
+                },
+                y: function(d) {
+                    return d.value;
+                },
+                showValues: true,
+                valueFormat: function(d) {
+                    return d3.format(',.0f')(d);
+                },
+                duration: 500,
+                xAxis: {
+                    axisLabel: 'Category',
+                    axisLabelDistance: -10
+                },
+                yAxis: {
+                    axisLabel: 'Revenue',
+                    axisLabelDistance: -5
+                }
+
+            }
+        };
+
+
+        ///========================
+        // $scope.DisplayMonthlyPlanning = function() {
+        //     $scope.displayScenario = false;
+        //     $scope.displayMonthlyPlanning = true;
+        //     $scope.countmonthlybudget();
+        //     // console.log($('.box-driver-linechart').height());
+        //     setTimeout(function() { $("#countmonthlybudget").click() }, 200);
+        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#foodanddrink') }, 200);
+        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#personalcare') }, 200);
+        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#homecare') }, 200);
+        // }
         $scope.filteritem = [
             { name: "Gridster Item", sizeX: 16, sizeY: 1, row: 0, col: 0, api: {} },
         ]
@@ -301,7 +439,6 @@ angular.module('clarosApp')
             url: '/api/driverplanners/'
         }).success(function(data) {
             $scope.allscenarios = data;
-            console.log(data)
             socket.syncUpdates('driverplanner', $scope.allscenarios);
             // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
             // setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
@@ -311,71 +448,7 @@ angular.module('clarosApp')
         });
         // ------------------------Get the Scenario  event-------------------------------------
 
-        // Range of Driver Budget
-        $scope.BrandPromotion = {
-            options: {
-                showSelectionBar: true,
-                floor: 100,
-                ceil: 500,
-                translate: function(value, sliderId, label) {
-                    switch (label) {
-                        default: return '$' + value
-                    }
-                }
-            }
-        };
 
-        $scope.PromotionSupport = {
-            options: {
-                showSelectionBar: true,
-                floor: 0,
-                ceil: 100,
-                translate: function(value, sliderId, label) {
-                    switch (label) {
-                        default: return value + '%'
-                    }
-                }
-            }
-        };
-
-        $scope.OnlineInvestment = {
-            options: {
-                showSelectionBar: true,
-                floor: 0,
-                ceil: 100,
-                translate: function(value, sliderId, label) {
-                    switch (label) {
-                        default: return value + '%'
-                    }
-                }
-            }
-        };
-
-        $scope.ShareofMedia = {
-            options: {
-                showSelectionBar: true,
-                floor: 0,
-                ceil: 100,
-                translate: function(value, sliderId, label) {
-                    switch (label) {
-                        default: return value + '%'
-                    }
-                }
-            }
-        };
-
-        $scope.PricingPremium = {
-            options: {
-                showSelectionBar: true,
-                floor: -100,
-                ceil: 100,
-                translate: function(value, sliderId, label) {
-                    switch (label) {
-                        default: return value + '%'
-                    }
-                }
-            }
-        };
 
         // Gridster for Graph
         $scope.standardItems = [
@@ -418,19 +491,9 @@ angular.module('clarosApp')
         };
 
         // Document Ready
-        angular.element(document).ready(function() {
-            // console.log(this.allscenarios)
-            setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#foodanddrink') }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#personalcare') }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#homecare') }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#foodanddrink') }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#personalcare') }, 100);
-            // setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#homecare') }, 100);
-            // $scope.drawLineGraph($scope.allscenarios,$('.box-basic').height/1.2,$('.box-basic').width/1.2,'#foodanddrink')
 
-        });
         $scope.broadcast = function() {
+
             $timeout(function() {
                 $scope.$broadcast('reCalcViewDimensions');
             });
@@ -521,11 +584,6 @@ angular.module('clarosApp')
             // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
         }
 
-
-
-
-
-
         $scope.openSettings = function(widget) {
             // console.log(widget)
             var uibModalInstance = $uibModal.open({
@@ -545,10 +603,7 @@ angular.module('clarosApp')
             // for(
             // console.log($scope.scenario));
             setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
-            // setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
 
-            // $scope.updateModel($scope.scenario)
-            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
         });
 
         $scope.monthlyBudget = [];
@@ -582,7 +637,7 @@ angular.module('clarosApp')
                 }
                 $scope.monthlyBudget.push(monthlyObject);
             }
-            console.log($scope.monthlyBudget);
+            // console.log($scope.monthlyBudget);
 
         }
 
@@ -667,7 +722,6 @@ angular.module('clarosApp')
                 }
                 dataForSellin.push(anObject)
             }
-            console.log(dataForSellin)
 
 
             var regionObject = {};
@@ -728,11 +782,7 @@ angular.module('clarosApp')
                 }, 200)
             }
         };
-        angular.element(window).on('resize', function(e) {
-            $timeout(function() {
-                $scope.$broadcast('resize');
-            })
-        });
+
         $scope.config = {
             visible: false,
             refreshDataOnly: true, // default: true
@@ -744,10 +794,16 @@ angular.module('clarosApp')
         // $scope.item.api.updateWithData($scope.dataChart);
         $timeout(function() {
             $scope.config.visible = true;
-
-
         }, 200);
 
+        angular.element(window).on('resize', function(e) {
+            // $window.location.reload();
+            $timeout(function() { $scope.resizeIpad(); }, 100)
+            $timeout(function() { $('#arrangePosition').trigger('click'); }, 200);
+        })
+        $scope.$on('gridster-mobile-changed', function(gridster) {
+            $scope.resizeIpad();
+        })
 
 
     })

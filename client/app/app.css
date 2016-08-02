@@ -166,7 +166,7 @@
     text-align:left;
     /* inline-block space fix */
     margin-right:-4px;
-    width:30%;
+    width:300px;
 }
 /*.navbar {
     min-height: 20px;

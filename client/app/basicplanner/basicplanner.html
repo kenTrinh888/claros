@@ -50,20 +50,8 @@
 
                             <div class="col-md-12" style="font-size:12px;text-align:center;">
                                 Price
-                              <switch id="enabled" name="enabled" ng-model="event.price" class="green" style="vertical-align:middle"></switch>
+                              <switch id="enabled" name="enabled" ng-model="event.price" class="green" style="vertical-align:middle" ng-change="updateModel(event)"></switch>
                                 Volume
-                                <!--  <div>Price</div> -->
-                                <!--  <toggle-switch ng-model="event.price" on-label="Price" off-label="Volume" class="switch-small" ng-change="switchYear(event)">
-                                </toggle-switch> -->
-                                <!-- <div class="well"> -->
-                                <!--   <div class="col-md-3" >
-                                <i class="fa fa-toggle-on priceswitch active" ng-if="event.price" ng-click="switchYear(event)"></i>
-                                <i class="fa fa-toggle-on fa-rotate-180 priceswitch inactive" ng-if="event.price == false" ng-click="switchYear(event)"></i>
-                                </div>
-                                <div>Volume</div> -->
-                                <!-- </div> -->
-                                <!-- <i class="fa fa-toggle-on fa-rotate-180 inactive" ng-if="status == false" ng-click="changeStatus();"></i> -->
-                                <!-- </div> -->
                             </div>
                             <table style="border:1px solid #ccc;margin:auto;width:100%">
                                 <tr class="basic-tablehead">
@@ -78,7 +66,7 @@
                                     </td>
                                     <td>
                                         <!-- <div style="height:10px"> -->
-                                        <rzslider rz-slider-model="eventDetail.quaterImpact" rz-slider-options="impactRange.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
+                                        <rzslider rz-slider-model="eventDetail.quarterImpact" rz-slider-options="impactRange.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                         <!-- </div> -->
                                     </td>
                                 </tr>
@@ -115,20 +103,7 @@
             </div>
         </div>
     </div>
-    <!--     <div gridster>
-        <ul class="with-3d-shadow with-transitions">
-            <li gridster-item="item" ng-repeat="item in gridsterchartitems">
-                <div class="box-basic-chart">
-                    <div class="box-header">
-                        <h3>{{item.name}}</h3>
-                    </div>
-                    <div class="box-content-chart-basic">
-                        <svg ng-if="$index == 0" class="charting-waterfall"></svg>
-                        <div ng-if="$index == 1" id="eventImpact"></div>
-                    </div>
-                </div>
-    </div> -->
-    <div class="vertical_scroll_basicPlanner">
+<!--     <div class="vertical_scroll_basicPlanner">
         <div gridster="gridsterBasicPlannerDetail">
             <ul class="with-3d-shadow with-transitions">
                 <li gridster-item="event" ng-repeat="event in events">
@@ -162,7 +137,7 @@
                                             {{eachCase.quarterCase}}
                                         </td>
                                         <td>
-                                            <rzslider rz-slider-model="eachCase.quaterCaseImpact" rz-slider-options="impactRange.options" style="margin-top:25px"></rzslider>
+                                            <rzslider rz-slider-model="eachCase.quarterCaseImpact" rz-slider-options="impactRange.options" style="margin-top:25px"></rzslider>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -201,5 +176,5 @@
                 </div>
             </li>
         </ul>
-    </div>
+    </div> -->
 </div>

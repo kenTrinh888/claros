@@ -1,0 +1,113 @@
+<div class="container">
+    <div class="row" style="border:1px solid #ccc">
+        <div class="box-content-filter">
+            <div class="col-md-3 " style="margin-top:-10px">
+                <h3 style="color:#F18630"> CASE PLANNER</h3>
+            </div>
+            <div class="form-group col-md-3" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="drug"> Drug </label>
+                </div>
+                <div class="col-md-8">
+                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getBasicEvent(drugChosen._id)">
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-3" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="drug"> KPI </label>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-control" ng-model="KPIChosen" ng-options="KPIChosen.name for KPIChosen in KPI track by KPIChosen.id">
+                    </select>
+                </div>
+            </div>
+            <input type="hidden" id="getBasicEvent" ng-click="getBasicEvent(drugChosen._id)">
+            <!--  <div class="form-group col-md-1" style="margin-top:7px;">
+                <a class="pull-left btn btn-primary add-basicplanner-button" ng-click="addNewEvent()"><i class="glyphicon glyphicon-plus"></i> Event</a>
+            </div> -->
+        </div>
+    </div>
+    <div class="vertical_scroll_CasePlanner">
+        <div gridster="gridsterOptionsCasePlanner">
+            <ul class="with-3d-shadow with-transitions">
+                <!-- <div ng-repeat="case in events" > -->
+                <li gridster-item size-x="6" ng-repeat="case in events"> 
+                <!-- index {{$index}} -->
+                    <div class="box-case">
+                        <div class="box-header">
+                            <h3>{{case.eventName }}</h3>
+                        </div>
+                        <div class="box-content-case">
+                            <div class="col-md-12 pricevolume-switch">
+                                Price
+                                <switch id="enabled" name="enabled" ng-model="case.price" class="green" style="vertical-align:middle" ng-change="updateModel(event)"></switch>
+                                Volume
+                            </div>
+                            <div class="col-md-12">
+                                <div ng-repeat="quarter in case.quarters" class="col-md-3">
+                                    <table class="case-table">
+                                        <thead>
+                                            <tr class="case-tablehead ">
+                                                <th colspan="3" style="font-size:12px">Quarter {{quarter.quaterName}}</th>
+                                            </tr>
+                                            <tr class="case-tablehead ">
+                                                <th>Scenario</th>
+                                                <th>$ Spend</th>
+                                                <th>% Impact</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="quarterCase in quarter.quarterCases">
+                                                <td class="case-tabledetail">{{quarterCase.quarterCase}}</td>
+                                                <td class="case-tabledetail">
+                                                    <span inline-edit="quarterCase.quarterCaseSpend" inline-edit-validation="myValidator($index,newValue,case,quarter)" inline-edit-filter="currency" inline-edit-on-blur="cancel"></span>
+                                                </td>
+                                                <td>
+                                                    <rzslider rz-slider-model="quarterCase.quarterCaseImpact" rz-slider-options="impactRange.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="updateModel" ng-click="updateModel(case)">
+                </li>
+                <!-- </div> -->
+            </ul>
+        </div>
+    </div>
+    <input type="hidden" id="arrangePosition" ng-click="broadcast()">
+    <input type="hidden" id="generateWaterFallCases" ng-click="generateWaterFallChart(events)">
+    <input type="hidden" id="drawEventCaseImpact" ng-click="drawEventCaseImpact(eventChosen,events)">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 .col-lg-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Event Revenue Comparison</h3>
+                </div>
+                <div class="panel-body">
+                    <!-- <div id="charting-waterfall"> -->
+                    <svg class="cases-waterfall"></svg>
+                    <!-- </div> -->
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 .col-lg-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <!-- <div class="col-md-12"> -->
+                    <h3 class="panel-title">Event Impact</h3>
+                    <!-- </div> -->
+                </div>
+                <div class="panel-body" id="eventImpactHeightWidth">
+                    <select class="form-control" ng-model="eventChosen" ng-options="eventChosen for eventChosen in eventsNames" ng-change="drawEventCaseImpact(eventChosen,events)">
+                    </select>
+                    <div id="eventCaseImpact"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,9 +14,12 @@ var BasicplannerSchema = new mongoose.Schema({
     quarters: [{
             quaterName: String,
             quarterSpend: Number,
-            quaterImpact: Number,
+            quarterImpact: Number,
             quarterCases: [
-                { quarterCase: String, quaterCaseImpact: Number }
+                { quarterCase: String, 
+                  quarterCaseImpact: Number,
+                  quarterCaseSpend: Number
+              }
             ]
         }]
 });

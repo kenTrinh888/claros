@@ -1,125 +1,90 @@
-<!-- <div class="page-header">
-    <a id="analyse" class="pull-right btn btn-primary" ng-click="broadcast()"><i class="glyphicon glyphicon-plus"></i> Analyse</a>
-    <a class="pull-right btn btn-primary" ng-click="$ctrl.addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
-    <a class="pull-right btn btn-warning" ng-click="clear()"><i class="glyphicon glyphicon-trash"></i> Clear</a>
-    <h1 style="display: inline-block; width: 200px;">Dashboard</h1>
-
-</div> -->
-<div gridster="gridsterFilterPromotion" style="margin-top:-25px">
-    <ul class="with-3d-shadow with-transitions">
-        <li gridster-item="item" ng-repeat="item in filteritem">
-            <div class="box">
-                <div class="box-content-filter">
-                    <div class="col-md-2 promotionfilter">
-                        <h3 style="color:#F18630"> PROMOTION PLANNER</h3>
-                    </div>
-                    <div ng-if="user.role === 'Pharma'" class="form-group col-md-4" style="margin-top:7px;">
-                        <div class="col-md-3">
-                            <label for="drug"> Drug </label>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen.id" style="width:200px">
-                            </select>
-                        </div>
-                    </div>
-                    <div ng-if="user.role === 'CPG'" class="form-group col-md-4" style="margin-top:7px;">
-                        <div class="col-md-3">
-                            <label for="promotionactivity"> Customer </label>
-                        </div>
-                        <div class="col-md-3">
-                            <!-- <select name="promotionactivity" id="promotionactivity" class="form-control" ng-model="scenario.promotionactivity " ng-change="updateModel(scenario)" style="width:200px">
-                                <option ng-repeat="option in Category" value="{{option.name}}">{{option.name}}</option>
-                            </select> -->
-                            <select class="form-control" ng-model="Customer.name" style="width:200px" ng-change="addChartData(allscenarios)">
-                                <option value="All">All</option>
-                                <option value="Grofers">Grofers</option>
-                                <option value="Freshdirect">Freshdirect</option>
-                                <option value="Localbanya">Localbanya</option>
-                                <option value="Bigbasket">Bigbasket</option>
-                                <option value="Naturesbasket">Naturesbasket</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group col-md-3" style="margin-top:7px">
-                        <div class="col-md-3">
-                            <label for="promotionactivity"> Months Input </label>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Number of Months" style="width:200px">
-                        </div>
-                    </div>
-<!--                     <div class="form-group col-md-6" style="margin-top:-10px">
-                        <div class="col-sm-8" style="margin-top:-15px">
-                            <rzslider rz-slider-model="totalBudget.value" rz-slider-options="totalBudget.options"></rzslider>
-                        </div>
-                    </div> -->
-                    <div class="col-md-1" style="margin-top:7px">
-                       <!--  <a class="pull-left btn btn-primary analyse-button-promotion " ng-click="DisplayScenario()">Analyse</a> -->
-                        <!-- <div class="analyse-div-promotion"> -->
-                            <a class="pull-left btn btn-primary analyse-button-promotion " ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
-                        <!-- </div> -->
-                    </div>
-                    <!--  <div class="form-group col-md-4" style="margin-top:0px">
-                        <div class="col-md-3">
-                            <label for="promotionactivity"> Brand </label>
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-control" ng-model="brandChosen" ng-options="abrand.name for abrand in BrandList" style="width:200px">
-                                <option value="">All</option>
-                            </select>
-                        </div>
-                    </div> -->
+<div class="container">
+    <div class="row" style="border:1px solid #ccc">
+        <div class="box-content-filter">
+            <div class="col-md-2 promotionfilter">
+                <h3 style="color:#F18630"> PROMOTION PLANNER</h3>
+            </div>
+            <div class="form-group col-md-3" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="drug"> Drug </label>
+                </div>
+                <div class="col-md-8">
+                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getPromotionscenario(drugChosen._id)">
+                    </select>
                 </div>
             </div>
-        </li>
-    </ul>
-</div>
-<!-- <div ng-show="displayScenario"> -->
+            <div ng-if="user.role === 'CPG'" class="form-group col-md-4" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="promotionactivity"> Customer </label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control" ng-model="Customer.name" style="width:200px" ng-change="addChartData(allscenarios)">
+                        <option value="All">All</option>
+                        <option value="Grofers">Grofers</option>
+                        <option value="Freshdirect">Freshdirect</option>
+                        <option value="Localbanya">Localbanya</option>
+                        <option value="Bigbasket">Bigbasket</option>
+                        <option value="Naturesbasket">Naturesbasket</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-3" style="margin-top:7px">
+                <div class="col-md-3">
+                    <label for="promotionactivity"> Months Input </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Number of Months" style="width:200px" value="12">
+                </div>
+            </div>
+            <div class="col-md-1" style="margin-top:7px">
+                <a class="pull-left btn btn-primary analyse-button-promotion " ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
+            </div>
+        </div>
+    </div>
+    <!-- <div ng-show="displayScenario"> -->
     <div class="vertical_scroll">
         <div gridster="gridsterOptions" class="promotional">
             <ul>
-                <li gridster-item="scenario" ng-repeat="scenario in allscenarios">
+                <li gridster-item="scenario" ng-repeat="scenario in allscenarios track by scenario._id">
                     <div class="box">
                         <div class="box-header">
                             <h3>{{ scenario.name }}</h3>
                             <div class="box-header-btns pull-right">
                                 <a title="settings" ng-click="openSettings(scenario)"><i class="glyphicon glyphicon-cog"></i></a>
                                 <a title="Remove scenario" ng-click="remove(scenario)"><i class="glyphicon glyphicon-trash"></i></a>
+                      <!--            <input type="hidden" id="updateModel" ng-click="updateModel(scenario)"> -->
                             </div>
                         </div>
                         <div class="box-content">
-                            <div class="col-sm-4" ng-repeat="aActivity in scenario.activity">
-                                <form class="form-horizontal" role="form">
-                                    <div class="form-group">
-                                        <label for="promotionactivity" class="col-sm-5 control-label">Promotion Activity</label>
-                                        <div class="col-sm-7">
-                                            <select name="promotionactivity" id="promotionactivity" class="form-control" ng-model="aActivity.name " ng-change="updateModel(scenario)">
-                                                <option ng-repeat="option in promotionActivity" value="{{option.name}}">{{option.name}}</option>
-                                            </select>
-                                        </div>
+                            <form class="form-horizontal" role="form">
+                                <div class="form-group form-group-promotion">
+                                    <label for="promotionactivity" class="col-sm-5 control-label" style="font-size:11px">Promotion Act.</label>
+                                    <div class="col-sm-7">
+                                        <select name="promotionactivity" id="promotionactivity" class="form-control" ng-model="scenario.promotionactivity" ng-change="updateModel(scenario)">
+                                            <option ng-repeat="option in promotionActivity" value="{{option.name}}">{{option.name}}</option>
+                                        </select>
                                     </div>
-                                    <div class="form-group" style="width:350px">
-                                        <label for="budget" class="col-sm-5 control-label">Budget</label>
-                                        <div class="col-sm-7" style="margin-top:-20px">
-                                            <!--  <rzslider rz-slider-model="scenario.budget" rz-slider-options="budgetRange.options"></rzslider> -->
-                                            <rzslider rz-slider-model="aActivity.budget" rz-slider-options="budgetRange.options"></rzslider>
-                                        </div>
+                                </div>
+                                <div class="form-group form-group-promotion">
+                                    <label for="interval" class="col-sm-5 control-label" style="font-size:11px">Interval</label>
+                                    <div class="col-sm-7">
+                                        <rzslider rz-slider-model="scenario.interval" rz-slider-options="intervalRange.options"></rzslider>
                                     </div>
-                                    <div class="form-group" style="width:350px">
-                                        <label for="interval" class="col-sm-5 control-label">Interval</label>
-                                        <div class="col-sm-7" style="margin-top:-15px">
-                                            <rzslider rz-slider-model="aActivity.interval" rz-slider-options="intervalRange.options"></rzslider>
-                                        </div>
+                                </div>
+                                <div class="form-group form-group-promotion">
+                                    <label for="frequency" class="col-sm-5 control-label" style="font-size:11px">Frequency</label>
+                                    <div class="col-sm-7">
+                                        <rzslider rz-slider-model="scenario.frequency" rz-slider-options="frequencylRange.options"></rzslider>
                                     </div>
-                                    <div class="form-group" style="width:350px">
-                                        <label for="frequency" class="col-sm-5 control-label">Frequency</label>
-                                        <div class="col-sm-7" style="margin-top:-15px">
-                                            <rzslider rz-slider-model="aActivity.frequency" rz-slider-options="frequencylRange.options"></rzslider>
-                                        </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="budget" class="col-sm-5 control-label" style="font-size:11px">Discount</label>
+                                    <div class="col-sm-7">
+                                        <rzslider rz-slider-model="scenario.discount" rz-slider-options="discountRange.options"></rzslider>
                                     </div>
-                                    <input type="hidden" id="updateModel" ng-click="updateModel(scenario)">
-                                </form>
-                            </div>
+                                </div>
+                               
+                            </form>
                         </div>
                     </div>
                 </li>
@@ -127,7 +92,8 @@
         </div>
     </div>
     <div>
-        <input type="hidden" id="analyse" ng-click="broadcast()">
+        <input type="hidden" id="getPromotionscenario" ng-click="getPromotionscenario(drugChosen._id)">
+        <input type="hidden" id="arrangePosition" ng-click="broadcast()">
         <input type="hidden" id="dataChartAdd" ng-click="addChartData(allscenarios)">
         <input type="hidden" id="PharmadataChartAdd" ng-click="addChartDataPharma(allscenarios)">
     </div>
@@ -145,4 +111,4 @@
             </li>
         </ul>
     </div>
-<!-- </div> -->
+</div>

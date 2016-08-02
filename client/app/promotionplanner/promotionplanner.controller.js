@@ -23,28 +23,51 @@ angular.module('clarosApp')
         }
 
         // Drug Filter===============================================================
-        $scope.drugChosen = {
-            "id": 2,
-            name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
-        }
-        $scope.drugs = [{
-            "id": 2,
-            name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
-        }, {
-            "id": 3,
-            name: "Adcirca, Pulmonary arterial hypertension"
-        }, {
-            "id": 4,
-            name: "Belsomra, Insomnia"
-        }, {
-            "id": 5,
-            name: "Corlanor, Chronic heart failure"
-        }, {
-            "id": 6,
-            name: "Tekamlo, Hypertension"
-        }];
+        $scope.KPIChosen = { "id": 1, "name": "Revenue" };
+        $scope.promotionActivity = ["Bundle", "Freebie", "Discount"];
+        $http({
+            method: 'GET',
+            url: '/api/drugs/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.drugs = data;
+            $scope.drugChosen = $scope.drugs[0]
+            setTimeout(function() {
+                $('#getPromotionscenario').trigger('click');
+                $('#dataChartAdd').trigger('click');
+            }, 100)
+        }).error(function(data) {
+            console.log("Error retrieved drugs");
+        });
 
-        // Drug Filter===============================================================
+        $scope.getPromotionscenario = function(drugid) {
+                // console.log(drugid)
+                $http({
+                    method: 'GET',
+                    url: '/api/promotionscenarios/'
+                }).success(function(data) {
+                    $scope.allscenarios = [];
+                    for (var i in data) {
+                        var aScenario = data[i];
+                        if (aScenario.drug == drugid) {
+                            $scope.allscenarios.push(aScenario)
+                        }
+                    }
+                    setTimeout(function() {
+                        $('#arrangePosition').trigger('click');
+                        $('#PharmadataChartAdd').trigger('click');
+
+                    }, 100);
+                    socket.syncUpdates('promotionscenario', $scope.allscenarios);
+
+
+                }).error(function(data) {
+                    console.log("Error retrieved food order");
+                });
+
+            }
+            // ------------------------Get the basic planner event-------------------------------------
+            // Drug Filter===============================================================
 
         // ------------------------Number of Gridster for Forecasting -------------------------------------
 
@@ -96,7 +119,7 @@ angular.module('clarosApp')
         // $scope.api.refreshWithTimeout(5);
         $scope.gridsterOptions = {
             margins: [50, 50],
-            columns: 1,
+            columns: 6,
             draggable: {
                 handle: 'h3'
             },
@@ -122,7 +145,7 @@ angular.module('clarosApp')
                     }, 400)
                 }
             },
-            rowHeight: 360
+            rowHeight: 300
         };
         $scope.gridsterItem = {
             margins: [50, 50],
@@ -150,7 +173,7 @@ angular.module('clarosApp')
                     }, 400)
                 }
             },
-            rowHeight: 300
+            rowHeight: 350
         };
 
 
@@ -196,6 +219,11 @@ angular.module('clarosApp')
                 floor: 1,
                 ceil: 10,
                 step: 1,
+                translate: function(value, sliderId, label) {
+                    switch (label) {
+                        default: return value + " month(s)"
+                    }
+                }
 
             }
         };
@@ -216,7 +244,7 @@ angular.module('clarosApp')
         $scope.discountRange = {
             options: {
                 showSelectionBar: true,
-                floor: 1,
+                floor: 0,
                 ceil: 100,
                 step: 1,
                 translate: function(value, sliderId, label) {
@@ -238,19 +266,19 @@ angular.module('clarosApp')
         };
 
         $scope.broadcast = function() {
-            $timeout(function() {
-                $scope.$broadcast('reCalcViewDimensions');
-            });
-        }
-        angular.element(document).ready(function() {
-            // console.log(this.allscenarios)
-            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
-            setTimeout(function() { $('#PharmadataChartAdd').trigger('click'); }, 100);
+                $timeout(function() {
+                    $scope.$broadcast('reCalcViewDimensions');
+                });
+            }
+            // angular.element(document).ready(function() {
+            //     // console.log(this.allscenarios)
+            //     // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+            //     setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+            //     setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
+            //     setTimeout(function() { $('#PharmadataChartAdd').trigger('click'); }, 100);
 
 
-        });
+        // });
         angular.element($window).on('resize', function() {
             console.log("window size Change")
             setTimeout(function() { $('#analyse').trigger('click'); }, 100);
@@ -353,13 +381,12 @@ angular.module('clarosApp')
                 }
                 $scope.dataChart.push(ChartObject);
             }
-            console.log($scope.dataChart);
         }
 
         // =============================//Data Chart for CPG==========================================
 
         // =============================//Data Chart for Pharma==========================================
-        $scope.dataChartPharma = [];
+
         var channels = ["All", "Government", "Pharmacy", "Hospital"];
         $scope.addChartDataPharma = function(scenarios) {
                 $scope.dataChartPharma = [];
@@ -371,95 +398,60 @@ angular.module('clarosApp')
                     for (var i in channels) {
                         var scenarioChannel = channels[i];
                         var valueObject = {};
-                        valueObject['label'] = scenarioChannel;
-                        valueObject['value'] = _.random(100, 500);
-                        ChartObject.values.push(valueObject);
+                        if (scenarioChannel == "All") {
+                            valueObject['label'] = scenarioChannel;
+                            valueObject['value'] = scenarios[x].All;
+                        } else if (scenarioChannel == "Government") {
+                            valueObject['label'] = scenarioChannel;
+                            valueObject['value'] = scenarios[x].Government;
+                        } else if (scenarioChannel == "Pharmacy") {
+                            valueObject['label'] = scenarioChannel;
+                            valueObject['value'] = scenarios[x].Pharmacy;
+                        } else {
+                            valueObject['label'] = scenarioChannel;
+                            valueObject['value'] = scenarios[x].Hospital;
+                        }
 
-                        // for (var y in Scenarioactivity) {
-                        //     var aActivity = Scenarioactivity[y];
-                        //     if (activityName === aActivity.name) {
-                        //         var valueObject = {};
-                        //         valueObject['label'] = scenarios[i].name;
-                        //         valueObject['value'] = _.random(100, 500);
-                        //         ChartObject.values.push(valueObject);
-                        //     }
-                        // }
+                        ChartObject.values.push(valueObject);
                     }
                     $scope.dataChartPharma.push(ChartObject);
                 }
-                console.log($scope.dataChartPharma);
             }
             // =============================//Data Chart for Pharma==========================================
 
-
-        // ------------------------Get the Scenario event-------------------------------------
-        // $scope.allscenarios = [];
-        $http({
-            method: 'GET',
-            url: '/api/promotionscenarios/'
-        }).success(function(data) {
-            $scope.allscenarios = data;
-            socket.syncUpdates('promotionscenario', $scope.allscenarios);
-            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            // setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
-
-        }).error(function(data) {
-            console.log("Error retrieved scenario event");
-        });
         // ------------------------Get the basic planner event-------------------------------------
 
 
         $scope.addWidget = function() {
-            var All = Math.floor(Math.random() * 1000);
-            var Government = Math.floor(Math.random() * 1000);
-            var Hospital = Math.floor(Math.random() * 1000);
-            var Pharmacy = Math.floor(Math.random() * 1000);
-            var Grofers = Math.floor(Math.random() * 50000);
-            var Freshdirect = Math.floor(Math.random() * 50000);
-            var Localbanya = Math.floor(Math.random() * 50000);
-            var Bigbasket = Math.floor(Math.random() * 50000);
-            var Naturesbasket = Math.floor(Math.random() * 50000);
+            var drug = $scope.allscenarios[0].drug;
             var lengthOfScenario = $scope.allscenarios.length + 1;
             var nameofscenario = "Scenario " + lengthOfScenario;
+            var All = _.random(500, 700);
+            var Government = _.random(100, 300);
+            var Hospital = _.random(100, 300);
+            var Pharmacy = _.random(100, 300);
+            var promotionactivities = ["Bundle", "Discount", "Freebie"]
+
 
             $http.post('/api/promotionscenarios', {
                 name: nameofscenario,
-                promotionactivity: "Bundle",
-                sizeX: 1,
-                sizeY: 1,
-                activity: [{
-                    name: "Bundle",
-                    budget: Math.floor(Math.random() * 100),
-                    interval: Math.floor(Math.random() * 10),
-                    frequency: Math.floor(Math.random() * 10),
-                    discount: Math.floor(Math.random() * 30)
-                }, {
-                    name: "Freebie",
-                    budget: Math.floor(Math.random() * 100),
-                    interval: Math.floor(Math.random() * 10),
-                    frequency: Math.floor(Math.random() * 10),
-                    discount: Math.floor(Math.random() * 30)
-                }, {
-                    name: "Discount",
-                    budget: Math.floor(Math.random() * 100),
-                    interval: Math.floor(Math.random() * 10),
-                    frequency: Math.floor(Math.random() * 10),
-                    discount: Math.floor(Math.random() * 30)
-                }],
+                drug: drug,
+                promotionactivity: promotionactivities[_.random(0, 2)],
+                interval: _.random(0, 10),
+                discount: _.random(0, 100),
+                frequency: _.random(0, 10),
                 All: All,
                 Government: Government,
                 Hospital: Hospital,
                 Pharmacy: Pharmacy,
-                Grofers: Grofers,
-                Freshdirect: Freshdirect,
-                Localbanya: Localbanya,
-                Bigbasket: Bigbasket,
-                Naturesbasket: Naturesbasket
 
             }).success(function() {
                 $(".vertical_scroll").animate({ scrollTop: $('.vertical_scroll').prop("scrollHeight") }, 100);
-                // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-                setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
+                setTimeout(function() {
+                    $('#arrangePosition').trigger('click');
+
+
+                }, 100);
                 setTimeout(function() { $('#PharmadataChartAdd').trigger('click'); }, 100);
 
                 console.log("success")
@@ -468,22 +460,19 @@ angular.module('clarosApp')
 
         }
         $scope.updateModel = function(scenario) {
-            console.log(scenario);
-            scenario.All = _.random(10000, 50000)
-            scenario.Government = _.random(10000, 50000)
-            scenario.Hospital = _.random(10000, 50000)
-            scenario.Pharmacy = _.random(10000, 50000)
-            scenario.Grofers = _.random(10000, 50000)
-            scenario.Freshdirect = _.random(10000, 50000);
-            scenario.Localbanya = _.random(10000, 50000);
-            scenario.Bigbasket = _.random(10000, 50000);
-            scenario.Naturesbasket = _.random(10000, 50000);
+            console.log(scenario)
+            scenario.All = _.random(500, 700);
+            scenario.Hospital = _.random(100, 300);
+            scenario.Pharmacy = _.random(100, 300);
+            scenario.Government = _.random(100, 300);
+
             $http({
                 method: 'PUT',
                 url: '/api/promotionscenarios/' + scenario._id,
                 data: scenario
             }).success(function() {
-                console.log("updated")
+                setTimeout(function() { $('#arrangePosition').trigger('click'); }, 100);
+
                 setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
                 setTimeout(function() { $('#PharmadataChartAdd').trigger('click'); }, 100);
 
@@ -524,13 +513,7 @@ angular.module('clarosApp')
         };
 
         $scope.$on("slideEnded", function() {
-            // for(
-            // console.log($scope.scenario));
             setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
-            // setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
-
-            // $scope.updateModel($scope.scenario)
-            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
         });
 
         // angular.element

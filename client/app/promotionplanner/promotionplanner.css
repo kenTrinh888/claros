@@ -75,7 +75,7 @@ form {
 .vertical_scroll {
     margin: auto;
     width: 100%;
-    height: 350px;
+    height: 320px;
     overflow-x: hidden;
     overflow-y: scroll;
     white-space: nowrap;
@@ -118,18 +118,22 @@ form {
 }
 
 .box-content-filter {
-    height: 100%,
+    height: 100%;
     width: 100%;
 }
 
 .promotional {
-    margin-top: -50px
+    margin-top: -45px
 }
 
 .bar-promotion{
-     margin-top: -50px
+     margin-top: -70px
 }
 
 .box-content-filter{
     width: 100%
+}
+
+.form-group-promotion {
+    margin-bottom:0px;
 }

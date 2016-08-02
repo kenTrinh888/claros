@@ -100,3 +100,17 @@ export function destroy(req, res) {
     .then(removeEntity(res))
     .catch(handleError(res));
 }
+
+//POST new Data
+export function bootstrap(req, res) {
+    Driverplanner.remove(function(err) {
+        if (err) {
+            handleError(res)
+        }
+    }).then(() => {
+      console.log(req.body)
+        Driverplanner.create(req.body)
+    }).then(() => {
+        console.log('finished populating Driverplanner Planner');
+    });
+}

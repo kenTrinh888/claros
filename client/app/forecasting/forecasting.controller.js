@@ -11,7 +11,7 @@ angular.module('clarosApp')
 
 
             // ------------------------Seting of Gridster for Forecasting  -------------------------------------
-
+            $scope.resetButton = false;
             $scope.gridsterForecasting = {
                 margins: [20, 20],
                 columns: 2,
@@ -276,10 +276,8 @@ angular.module('clarosApp')
                     drugNames.push(aDrug.name);
                 }
             };
-            console.log(drugNames)
-                // console.log(drugName)
             $scope.drawGraph = function(channelChosenName, drugChosenName) {
-                console.log(scatterdataPlot)
+
                 $scope.chart = c3.generate({
                     bindto: '#chart',
                     data: {
@@ -293,40 +291,25 @@ angular.module('clarosApp')
                         },
                         type: 'scatter',
                         onclick: function(d, index) {
-
+                            // $scope.resetButton = true;
+                            // $scope.resetButton = true;
+                            $scope.setButtonVisible();
                             this.focus(d.name)
-
-                                // console.log(d);
-                                // console.log(this);
-                                // d3.select(".c3-region.regionY").append("text")
-                                // console.log(arguments[1]);
-                                // d3.select(arguments[1]).style("fill","red")
-                                // console.log(d3.select(d3.selectAll("circle")[0][d.index])[0][0])
-                                // this.focus();
-                                // d3.select(d3.selectAll("circle")[d.index]).style("fill", "black")
-
-                            // d3.select(d3.selectAll("circles").attr("r", 15))
-                            // this.regions([
-                            //     { axis: 'x', start: 5, class: 'regionX' },
-                            //     { axis: 'y', end: 200, class: 'regionY' }
-                            // ]);
-
-                            // this.color: {
-                            //     pattern: ['#1f77b4', '#aec7e8']
-                            // }
-                            var nameOfcustomer = scatterdataPlot[d.index].name
-                            if ($scope.user.role === 'CPG') {
-                                $scope.drawSellin(nameOfcustomer, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-                                $scope.drawSellout(nameOfcustomer, $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-                                $scope.drawWaterFall(nameOfcustomer, $scope.waterFallData, $('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
-
-                            } else {
-                                $scope.drawSellin(channelChosenName, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-                                $scope.drawSellout(channelChosenName, $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-                                $scope.drawWaterFall(nameOfcustomer, channelChosenName, $scope.waterFallData, $('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
-
+                            for (var i in $scope.drugs) {
+                                var aDrug = $scope.drugs[i];
+                                if (aDrug.name == d.name) {
+                                    $scope.showDrugChosen = true;
+                                    $scope.drugChosen = aDrug;
+                                }
                             }
+                            // console.log($scope.drugChosen)
 
+                            $('#drugChosenName').empty();
+                            $('#drugChosenName').append(d.name);
+                            var nameOfcustomer = scatterdataPlot[d.index].name
+                            $scope.drawSellin(channelChosenName, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
+                            $scope.drawSellout(channelChosenName, $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
+                            $scope.drawWaterFall(nameOfcustomer, channelChosenName, $scope.waterFallData, $('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
                         }
 
                     },
@@ -359,7 +342,7 @@ angular.module('clarosApp')
                         r: 7,
                         focus: {
                             expand: {
-                                r: 10
+                                r: 15
                             }
                         },
                         select: {
@@ -369,12 +352,12 @@ angular.module('clarosApp')
                     grid: {
                         x: {
                             lines: [
-                                { value: 250, text: 'Size Significance Line' },
+                                { value: 250 },
                             ]
                         },
                         y: {
                             lines: [
-                                { value: 50, text: 'Growth Significance Line' },
+                                { value: 50 },
                             ]
                         }
                     },
@@ -382,41 +365,66 @@ angular.module('clarosApp')
                         show: false
                     }
                 });
+                if (drugChosenName != "All") {
+                    $scope.chart.focus(drugChosenName);
+                }
+
+                // var width = $(".c3-event-rect").width()
+                var svgAttr = d3.select("rect");
+                var heightSVG = svgAttr[0][0].height;
+                var widthSVG = svgAttr[0][0].width;
+                // var height = heightSVG.value;
+                var SVGheight = heightSVG.baseVal.value;
+                var SVGwidth = widthSVG.baseVal.value;
+                // console.log(SVGwidth)
+                // console.log(SVGheight)
                 d3.select("svg").append("text")
-                    .attr("x", 100)
+                    .attr("x", 150)
                     .attr("y", 25)
+                    .attr("class", "quadrant-text") // add class to show the event in front
                     .style("text-anchor", "middle")
-                    .text("Your 1 title goes here");
+                    .text("Growing-Not Significance")
+                    .style('fill', 'grey')
                 d3.select("svg").append("text")
-                    .attr("x", 100)
+                    .attr("x", 150)
                     .attr("y", 90)
+                    .attr("class", "quadrant-text") // add class to 
                     .style("text-anchor", "middle")
-                    .text("Your 2 title goes here");
+                    .text("Not Growing-Not Significance")
+                    .style('fill', 'grey')
+                d3.select("svg").append("text")
+                    .attr("x", 350)
+                    .attr("y", 90)
+                    .attr("class", "quadrant-text") // add class
+                    .style("text-anchor", "middle")
+                    .text("Not Growing-Significance")
+                    .style('fill', 'grey')
+                d3.select("svg").append("text")
+                    .attr("x", 350)
+                    .attr("y", 25)
+                    .attr("class", "quadrant-text") // add class
+                    .style("text-anchor", "middle")
+                    .text("Growing-Significance")
+                    .style('fill', 'grey')
+
             }
 
-            // Data for Scatter Plot 
+
+            $scope.setButtonVisible = function() {
+                // console.log($scope.resetButton)
+                $timeout(function() {
+                    $scope.resetButton = true;
+                }, 100);
+                // console.log($scope.resetButton)
+            }
+
+            $scope.resetDefault = function() {
+                $scope.drugChosen = $scope.drugs[0];
+                $scope.channelChosen = $scope.channels[0];
+                $scope.DisplayDashboard($scope.channels[0], $scope.drugs[0])
+            }
 
             // =============================Draw WaterFall Chart==========================================================
-
-            // var dataforWaterFall = [{
-            //     "name": "Product Revenue",
-            //     "value": 420000
-            // }, {
-            //     "name": "Services Revenue",
-            //     "value": 210000
-            // }, {
-            //     "name": "Fixed Costs Costs",
-            //     "value": -210000
-            // }, {
-            //     "name": "Variable Costs",
-            //     "value": -140000
-            // }];
-            // // Product Revenue,420000
-            // Services Revenue,210000
-            // Fixed Costs,-170000
-            // Variable Costs,-140000
-
-            // var data = [];
 
             var driversplanner = ["Online Investment", "Offline Investment", "Promotional Support", "Competitor Promotion"]
             $scope.waterFallData = [];
@@ -535,10 +543,16 @@ angular.module('clarosApp')
             $scope.randomizedataforLineChart = function(data) {
                     for (i = 1; i < data.length; i++) {
                         for (x = 1; x < data[i].length; x++) {
-                            data[i][x] = _.random(100, 500);
+                            if (x == 1) {
+                                data[i][x] = _.random(100, 500);
+                            } else {
+                                var previousAmount = data[i][x - 1];
+                                data[i][x] = previousAmount * (1 + _.random(-.3, .3))
+                            }
 
                         }
                     }
+                    return
                 }
                 // =============================Draw Sell-in==========================================================
             var time = ["x", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -552,8 +566,16 @@ angular.module('clarosApp')
 
                     // $scope.SellinData.push(name);
                     for (var x = 0; x < 12; x++) {
-                        var random = _.random(100, 500);
-                        dataArray.push(random);
+                        if (x == 0) {
+                            var random = _.random(100, 500);
+                            dataArray.push(random);
+                        } else {
+                            var randomNumber = parseInt(dataArray[dataArray.length - 1]);
+                            var numToadd = randomNumber * (1 + (_.random(-0.2, .2)))
+                            dataArray.push(numToadd);
+
+                        }
+
                     }
                     $scope.SellinData.push(dataArray)
                 }
@@ -572,10 +594,7 @@ angular.module('clarosApp')
                             var randomNumber = parseInt(dataArray[dataArray.length - 1]);
                             var numToadd = randomNumber * (1 + (_.random(-0.2, .2)))
                             dataArray.push(numToadd);
-
                         }
-
-
                     }
                     //console.log(dataArray);
                     $scope.SellinData.push(dataArray)
@@ -583,7 +602,6 @@ angular.module('clarosApp')
             }
             $scope.SellinData.unshift(time);
             $scope.drawSellin = function(nameOfcustomer, data, height, width) {
-
                 var dataForSellin = [];
                 if (nameOfcustomer === "All") {
                     var dataForSellin = data;
@@ -596,7 +614,7 @@ angular.module('clarosApp')
                     }
                 }
                 //console.log(data)
-                //console.log(dataForSellin)
+                // console.log(dataForSellin)
                 // $scope.randomizedataforLineChart(dataForSellin);
                 var regionObject = {};
                 var dashstyle = [{ 'start': 6, 'end': 12, 'style': 'dashed' }];
@@ -641,7 +659,7 @@ angular.module('clarosApp')
                     grid: {
                         x: {
                             lines: [
-                                { value: "Jul", text: 'Past/Future Line' }
+                                { value: "7", text: 'Past/Future Line' }
                             ]
                         }
                     }
@@ -740,7 +758,7 @@ angular.module('clarosApp')
                     grid: {
                         x: {
                             lines: [
-                                { value: "Jul", text: 'Past/Future Line' }
+                                { value: "7", text: 'Past/Future Line' }
                             ]
                         }
                     }
@@ -750,52 +768,14 @@ angular.module('clarosApp')
 
             // =============================Draw WaterFall Chart==========================================================
 
-            // angular.element(document).ready(function() {
-            //     setTimeout(function() {
-            //         $scope.drawWaterFall($('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
-            //         $scope.drawGraph($('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //         $scope.drawSellin("All", $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //         $scope.drawSellout("All", $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-
-            //     }, 100)
-            // })
-
-            // if ($scope.user.role === "CPG") {
-            //     $scope.DisplayDashboard = function() {
-            //         $scope.displayDashboard = true;
-            //         // $scope.channelSelect = function(channelChosen){
-            //         //     //console.log(channelChosen)
-            //         // }
-            //         // //console.log($scope.)
-            //         setTimeout(function() {
-            //             $scope.drawWaterFall($scope.Customer.name, $scope.waterFallData, $('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawGraph("", "", $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawSellin($scope.Customer.name, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawSellout($scope.Customer.name, $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-
-            //         }, 100)
-            //     }
-            // } else {
-            //     $scope.DisplayDashboard = function(channelChosen, drugChosen) {
-            //         $scope.displayDashboard = true;
-            //         // //console.log(drugChosen.name)
-            //             // $scope.channelSelect = function(channelChosen){
-            //             //     //console.log(channelChosen)
-            //             // }
-            //             // //console.log($scope.)
-            //         setTimeout(function() {
-            //             $scope.drawWaterFall(drugChosen.name, channelChosen.name,$scope.waterFallData, $('.box-forecasting').height() / 1.7, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawGraph(channelChosen.name, drugChosen.name, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawSellin(channelChosen.name, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-            //             $scope.drawSellout(channelChosen.name, $scope.SelloutData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);
-
-            //         }, 100)
-            //     }
-            // }
-
 
             $scope.DisplayDashboard = function(channelChosen, drugChosen) {
                 // setTimeout(function() {
+                if (drugChosen.name !== "All") {
+                    $scope.resetButton = true;
+                } else {
+                    $scope.resetButton = false;
+                }
                 $scope.drawWaterFall(drugChosen.name, channelChosen.name, $scope.waterFallData);
                 $scope.drawGraph(channelChosen.name, drugChosen.name);
                 $scope.drawSellin(channelChosen.name, $scope.SellinData, $('.box-forecasting').height() / 1.2, $('.box-forecasting').width() / 1.1);

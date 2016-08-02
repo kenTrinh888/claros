@@ -2,7 +2,7 @@
 
 angular.module('clarosApp')
     .controller('basicplannerController', function($scope, $http, $timeout, socket, $uibModal) {
-        setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+        $('#analyse').trigger('click');
 
         $scope.KPIChosen = { "id": 1, "name": "Revenue" }
         $scope.KPI = [{ "id": 1, "name": "Revenue" }, { "id": 2, "name": "Volume" }]
@@ -29,13 +29,17 @@ angular.module('clarosApp')
         // ------------------------Seting of Gridster  -------------------------------------
 
         // ------------------------Get the basic planner event-------------------------------------
-        $scope.drugChosen = { "name": "Actemra, Polyarticular Juvenile Idiopathic Arthritis", "_id": "5799635dd33025fb02278423" }
         $http({
             method: 'GET',
             url: '/api/drugs/'
         }).success(function(data) {
             // console.log(data)
             $scope.drugs = data;
+            $scope.drugChosen = $scope.drugs[0];
+            setTimeout(function() {
+                $('#getBasicEvent').trigger('click');
+            }, 100)
+
         }).error(function(data) {
             console.log("Error retrieved drugs");
         });
@@ -68,27 +72,21 @@ angular.module('clarosApp')
 
         // ('#drawImpactButton').trigger('click');
         $scope.generateGraph = function(events) {
-                $scope.drawWaterFall(events, $("#eventImpact").height(), $("#eventImpact").width());
-                // $scope.drawWaterFallCases(events, $('.box-basic-chart').height() / 1.2, $('.box-basic-chart').width());
-                $scope.drawImpact(events)
-            }
-            // d3.select(window).on('resize', resize);
-            // $scope.resize = function() {
-            //     $scope.drawWaterFall(events, $("#charting-waterfall").width() / 1.2, $("#charting-waterfall").width() / 1.2);
+            $scope.drawWaterFall(events, $("#eventImpact").height(), $("#eventImpact").width());
+            $scope.drawImpact(events)
+        }
 
-        // }
         angular.element(window).on('resize', function(e) {
+            console.log("resize")
+            $timeout(function() { $('#analyse').trigger('click'); }, 200);
             $timeout(function() {
                 $scope.drawWaterFall($scope.events, $("#eventImpact").height(), $("#eventImpact").width());
-
             })
         });
-        angular.element(document).ready(function() {
-            setTimeout(function() {
-                $('#getBasicEvent').trigger('click');
-            }, 100)
+        $scope.$on('gridster-mobile-changed', function(gridster) {
+             $timeout(function() { $('#analyse').trigger('click'); }, 100);
+        })
 
-        });
         // ------------------------angularjs function document ready render-------------------------------------
 
 
@@ -127,50 +125,50 @@ angular.module('clarosApp')
 
         // ------------------------Add new Event-------------------------------------
         $scope.addNewEvent = function() {
-            console.log($scope.events[0])
-            var drugID = $scope.events[0].drug
+                console.log($scope.events[0])
+                var drugID = $scope.events[0].drug
                 var trackingNumber = $scope.events.length + 1;
                 var eventNewName = "Event" + trackingNumber;
                 var newEvent = {
                     eventName: eventNewName,
                     drug: drugID,
                     year: true,
-                    expectedRevenue: _.random(-20,50),
+                    expectedRevenue: _.random(-20, 50),
                     quarters: [{
                         quaterName: "1",
-                        quarterSpend: Math.floor(Math.random() * 50000),
-                        quaterImpact: Math.floor(Math.random() * 50),
+                        quarterSpend: _.random(100, 500),
+                        quarterImpact: _.random(-50, 50),
                         quarterCases: [
-                            { quarterCase: "Base Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Best Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Worst Case", quaterCaseImpact: Math.floor(Math.random() * 50) }
+                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
                         ]
                     }, {
                         quaterName: "2",
-                        quarterSpend: Math.floor(Math.random() * 50000),
-                        quaterImpact: Math.floor(Math.random() * 50),
+                        quarterSpend: _.random(100, 500),
+                        quarterImpact: _.random(-50, 50),
                         quarterCases: [
-                            { quarterCase: "Base Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Best Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Worst Case", quaterCaseImpact: Math.floor(Math.random() * 50) }
+                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
                         ]
                     }, {
                         quaterName: "3",
-                        quarterSpend: Math.floor(Math.random() * 50000),
-                        quaterImpact: Math.floor(Math.random() * 50),
+                        quarterSpend: _.random(100, 500),
+                        quarterImpact: _.random(-50, 50),
                         quarterCases: [
-                            { quarterCase: "Base Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Best Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Worst Case", quaterCaseImpact: Math.floor(Math.random() * 50) }
+                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
                         ]
                     }, {
                         quaterName: "4",
-                        quarterSpend: Math.floor(Math.random() * 50000),
-                        quaterImpact: Math.floor(Math.random() * 50),
+                        quarterSpend: _.random(100, 500),
+                        quarterImpact: _.random(-50, 50),
                         quarterCases: [
-                            { quarterCase: "Base Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Best Case", quaterCaseImpact: Math.floor(Math.random() * 50) },
-                            { quarterCase: "Worst Case", quaterCaseImpact: Math.floor(Math.random() * 50) }
+                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
+                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
                         ]
                     }]
 
@@ -181,7 +179,6 @@ angular.module('clarosApp')
                     data: newEvent
                 }).success(function() {
                     console.log("success")
-
                     $(".vertical_scroll_basicPlanner").animate({ scrollTop: $('.vertical_scroll_basicPlanner').prop("scrollHeight") }, 100);
                     setTimeout(function() {
                         // console.log(heightofWaterFall)
@@ -235,7 +232,7 @@ angular.module('clarosApp')
         $scope.master = {};
         $scope.updateModel = function(event) {
             console.log(event)
-            // event.expectedRevenue = _.random(10,80)
+                // event.expectedRevenue = _.random(10,80)
             $http({
                 method: 'PUT',
                 url: '/api/basicplanners/' + event._id,
@@ -244,7 +241,7 @@ angular.module('clarosApp')
                 // console.log(data)
                 setTimeout(function() {
                     // console.log(heightofWaterFall)
-                   $('#analyse').trigger('click');
+                    $('#analyse').trigger('click');
                     $scope.drawWaterFall($scope.events, $(".panel-body").height() / 1.2, $(".panel-body").width());
                     $scope.drawImpact($scope.events)
                         // console.log(data) 
@@ -261,23 +258,27 @@ angular.module('clarosApp')
 
         });
 
+        // $scope.$on("onChange", function() {
+
+        // })
+
         // Update validate $ spend
 
-        $scope.myValidator = function(index, newValue,event) {
+        $scope.myValidator = function(index, newValue, event) {
             // return newValue
             console.log(event)
             event.quarters[index].quarterSpend = newValue;
-            event.expectedRevenue = _.random(-30,80)
+            event.expectedRevenue = _.random(-30, 80)
             $scope.updateModel(event)
         };
 
 
         // =============================Draw WaterFall Chart==========================================================
 
-       
+
         $scope.drawWaterFall = function(dataChart, height, width) {
             // var numberRandom =_.random(-20, 100);
-             var data = [];
+            var data = [];
 
             $(".charting-waterfall").empty();
             // console.log(data)
@@ -289,7 +290,7 @@ angular.module('clarosApp')
                 var waterfallObject = {};
                 waterfallObject['name'] = anEvent.eventName
                     // var firstValue = $scope.dataChart[0].value;
-                // waterfallObject['value'] = _.random(-20, 100);
+                    // waterfallObject['value'] = _.random(-20, 100);
                 waterfallObject['value'] = anEvent.expectedRevenue;
 
                 data.push(waterfallObject);
@@ -769,7 +770,7 @@ angular.module('clarosApp')
                 var anEvent = data[i];
                 anQuarterArray.unshift(anEvent.eventName);
                 for (var x in anEvent.quarters) {
-                    var quarterImpact = anEvent.quarters[x].quaterImpact
+                    var quarterImpact = anEvent.quarters[x].quarterImpact
                     anQuarterArray.push(quarterImpact);
                 }
                 ImpactData.push(anQuarterArray);
@@ -807,10 +808,6 @@ angular.module('clarosApp')
 
             $scope.form = {
                 name: widget.name,
-                // sizeX: widget.sizeX,
-                // sizeY: widget.sizeY,
-                // col: widget.col,
-                // row: widget.row
             };
 
             $scope.sizeOptions = [{

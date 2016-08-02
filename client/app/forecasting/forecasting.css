@@ -71,3 +71,6 @@
     height: 250px;
 }
 
+.quadrant-text {
+    pointer-events: none;
+}

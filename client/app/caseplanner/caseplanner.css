@@ -1,0 +1,54 @@
+.vertical_scroll_CasePlanner {
+    margin: auto;
+    width: 100%;
+    height: 260px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+}
+
+.box-case {
+    height: 100%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.box-content-case {
+    height: 100%;
+    width: 100%;
+}
+
+.pricevolume-switch {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.case-table {
+    border: 1px solid #ccc;
+    margin: auto;
+    margin-bottom: 10px;
+    width: 100%;
+    
+}
+
+.case-tablehead th {
+    /*margin:auto;*/
+    text-align: center;
+    background-color: #44546A;
+    color: white;
+    font-size: 11px;
+    /*width:20%;*/
+}
+
+.case-tabledetail {
+    text-align: center;
+    /*width:20%;*/
+    font-size: 11px
+}
+
+#eventCaseImpact{
+    width: 100%;
+    min-height: 250px
+}

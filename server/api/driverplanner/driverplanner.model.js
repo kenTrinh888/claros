@@ -4,22 +4,40 @@ import mongoose from 'mongoose';
 
 var DriverplannerSchema = new mongoose.Schema({
     name: String,
-    BrandPromotion: Number,
-    InstoreMarketing: Number,
-    InstorePromotion: Number,
-    CompetitorPromotion: Number,
-    KOLActivity: [{
-        ActivityName: String,
-        Impact: Number
+    drug: { type: mongoose.Schema.Types.ObjectId, ref: "drug" },
+    ExpectedRev: [{
+        channel: String,
+        revenue: Number
     }],
-    Innovation: [{
-        ActivityName: String,
-        Impact: Number
-    }],
-    SalesandDiscount: [{
-        ActivityName: String,
-        Impact: Number
-    }]
+    KOLActivity: {
+        name: String,
+        cost: Number,
+        expectRevenue: Number,
+        activities: [{
+            ActivityName: String,
+            Impact: Number,
+            options : {
+            }
+        }]
+    },
+    Innovation: {
+        name: String,
+        cost: Number,
+        expectRevenue: Number,
+        activities: [{
+            ActivityName: String,
+            Impact: Number,
+        }]
+    },
+    Sales: {
+        name: String,
+        cost: Number,
+        expectRevenue: Number,
+        activities: [{
+            ActivityName: String,
+            Impact: Number,
+        }]
+    }
 });
 
 export default mongoose.model('Driverplanner', DriverplannerSchema);
