@@ -17,6 +17,7 @@ function onConnect(socket) {
   });
 
   // Insert sockets below
+  require('../api/masterplan/masterplan.socket').register(socket);
   require('../api/driverplanner/driverplanner.socket').register(socket);
   require('../api/basicplanner/basicplanner.socket').register(socket);
   require('../api/promotionscenario/promotionscenario.socket').register(socket);

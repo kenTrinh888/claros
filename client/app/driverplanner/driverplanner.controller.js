@@ -54,11 +54,11 @@ angular.module('clarosApp')
                 showSelectionBar: true,
                 // showSelectionBarEnd: true,
                 floor: 0,
-                ceil: 100,
+                ceil: 1000,
                 step: 1,
                 translate: function(value, sliderId, label) {
                     switch (label) {
-                        default: return value + '$'
+                        default: return '$' + value
                     }
                 }
             }
@@ -83,7 +83,26 @@ angular.module('clarosApp')
                 // showSelectionBarEnd: true,
                 floor: 1,
                 ceil: 5,
-                step: 1
+                step: 1,
+                translate: function(value, sliderId, label) {
+                    // console.log(label);
+                    // if (label == 'floor') {
+                    //     return value + ' ( Very Low)'
+                    // }
+
+                    // if (label == 'ceil') {
+                    //     return value + ' (Very High)'
+                    // }
+                    switch (label) {
+                        case 'floor' : 
+                            return value + '(Very Low)';
+                        case 'ceil':
+                            return value + '(Very Hight)';
+                        default :
+                            return value;
+                    }
+                    // return value + 'lw'
+                }
             }
         };
         $scope.InnovationDuration = {
@@ -249,7 +268,6 @@ angular.module('clarosApp')
                 $scope.dataChart.push(ChartObject);
             }
 
-            console.log($scope.dataChart);
         }
 
         // init dashboard
@@ -322,8 +340,6 @@ angular.module('clarosApp')
                 }
                 $scope.dataChartRevenue.push(ChartObject)
             }
-
-            console.log($scope.dataChartRevenue)
         }
 
         // init dashboard

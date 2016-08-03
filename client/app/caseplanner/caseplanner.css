@@ -48,7 +48,29 @@
     font-size: 11px
 }
 
-#eventCaseImpact{
+/*#eventCaseImpact{
     width: 100%;
     min-height: 250px
+}*/
+
+@media (min-height: 600px) {
+    #eventCaseImpact {
+        min-height: 120px;
+    }
+
+}
+
+@media (min-height: 650px) {
+    #eventCaseImpact {
+        min-height: 210px;
+    }
+
+}
+
+
+@media (min-height: 800px) {
+    #eventCaseImpact {
+        min-height: 350px;
+    }
+
 }

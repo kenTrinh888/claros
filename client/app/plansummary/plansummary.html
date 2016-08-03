@@ -3,3 +3,7 @@
 <button ng-click="generatePromotionData(drugData)">Generate Promotion Planner Data</button>
 <button ng-click="generateOptimisationData(drugData)">Generate Optimisational Planner Data</button>
 
+<select class="form-control" style="font-size:12px" ng-model="masterplan" ng-options="masterplan.name for masterplan in masterplanArray track by masterplan._id" ng-change="getCurrentPlan(masterplan)">
+</select>
+
+<!-- <div> Current Plan = {{currentMasterPlan.name}} </div> -->

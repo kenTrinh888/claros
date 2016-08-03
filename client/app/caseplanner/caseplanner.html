@@ -17,15 +17,12 @@
                 <div class="col-md-3">
                     <label for="drug"> KPI </label>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <select class="form-control" ng-model="KPIChosen" ng-options="KPIChosen.name for KPIChosen in KPI track by KPIChosen.id">
                     </select>
                 </div>
             </div>
             <input type="hidden" id="getBasicEvent" ng-click="getBasicEvent(drugChosen._id)">
-            <!--  <div class="form-group col-md-1" style="margin-top:7px;">
-                <a class="pull-left btn btn-primary add-basicplanner-button" ng-click="addNewEvent()"><i class="glyphicon glyphicon-plus"></i> Event</a>
-            </div> -->
         </div>
     </div>
     <div class="vertical_scroll_CasePlanner">

@@ -34,27 +34,6 @@ angular.module('clarosApp')
             };
             // ------------------------Seting of Gridster for Forecasting -------------------------------------
 
-            // ------------------------Seting of Gridster for Forecasting  -------------------------------------
-
-            // $scope.gridsterFilter = {
-            //     margins: [20, 20],
-            //     columns: 2,
-            //     draggable: {
-            //         handle: 'h3'
-            //     },
-            //     mobileModeEnabled: true,
-            //     resizable: {
-            //         enabled: true,
-            //         handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-            //         start: function(event, $element, widget) {}, // optional callback fired when resize is started,
-            //         resize: function(event, $element, widget) {
-
-            //         }, // optional callback fired when item is resized,
-            //         stop: function(event, $element, widget) {} // optional callback fired when item is finished resizing
-            //     },
-            //     // rowHeight: 120
-            // };
-            // ------------------------Seting of Gridster for Forecasting -------------------------------------
             // ------------------------Number of Gridster for Forecasting -------------------------------------
             $scope.ForecastingGridsterItems = [
                 { name: "Growth/Size Quadrant", sizeX: 1, sizeY: 1, row: 0, col: 0, api: {} },
@@ -286,7 +265,6 @@ angular.module('clarosApp')
                         keys: {
                             x: "size",
                             value: drugNames
-                                // value: ['Growing and Significance', 'Growing and InSignificance', 'Not Growing and InSignificance', 'Not Growing and Significance']
 
                         },
                         type: 'scatter',

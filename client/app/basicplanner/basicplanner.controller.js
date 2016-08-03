@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('clarosApp')
-    .controller('basicplannerController', function($scope, $http, $timeout, socket, $uibModal) {
+    .controller('basicplannerController', function($scope, $http, $timeout, socket, $uibModal,MasterPlan) {
         $('#analyse').trigger('click');
-
+        console.log(MasterPlan.getCurrentMasterPlan());
         $scope.KPIChosen = { "id": 1, "name": "Revenue" }
         $scope.KPI = [{ "id": 1, "name": "Revenue" }, { "id": 2, "name": "Volume" }]
 

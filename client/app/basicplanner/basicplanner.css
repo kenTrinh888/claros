@@ -233,10 +233,6 @@
     height: 300px;
 }
 
-#eventImpact {
-    min-height: 300px;
-}
-
 .vertical_scroll_basicPlanner {
     margin: auto;
     width: 100%;
@@ -246,11 +242,41 @@
     white-space: nowrap;
 }
 
+@media (min-height: 600px) {
+    #eventImpact {
+        min-height: 120px;
+    }
+/*    #charting-waterfall {
+        min-height: 120px;
+    }*/
+}
 
-/* Styles go here */
+@media (min-height: 650px) {
+    #eventImpact {
+        min-height: 250px;
+    }
+/*        #charting-waterfall {
+        min-height: 250px;
+    }*/
+}
 
 
-/*.priceswitch, .active, .inactive {font-size:30px;cursor:pointer}
-.priceswitch, .active, .inactive {font-size:30px;cursor:pointer;}
-i.active { color: #5cb85c}
-i.inactive {color: #d9534f}*/
+@media (min-height: 800px) {
+    #eventImpact {
+        min-height: 350px;
+    }
+/*     #charting-waterfall {
+        min-height: 350px;
+    }*/
+}
+
+.switch {
+    height: 15px;
+    width: 37px;
+}
+
+.switch small {
+    width: 15px;
+    height: 15px;
+}
+

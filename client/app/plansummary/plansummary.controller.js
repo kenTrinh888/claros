@@ -3,7 +3,24 @@
 //     broadcast();
 // });
 angular.module('clarosApp')
-    .controller('PlanSummaryCtrl', function($http, $scope, socket, $timeout, $window, $uibModal, Auth) {
+    .controller('PlanSummaryCtrl', function($http, $scope, socket, $timeout, $window, $uibModal, Auth,MasterPlan) {
+        //Get Master Plan Data==================================================
+        $scope.masterplanArray = [];
+        $scope.currentMasterPlan = {};
+        $http({
+            method: 'GET',
+            url: 'api/masterplans'
+        }).success(function(masterPlanData) {
+            $scope.masterplanArray = masterPlanData;
+        }).error(function() {
+            console.log("error")
+        });
+
+        $scope.getCurrentPlan = function(plan){
+            MasterPlan.setCurrentPlan(plan);
+        }
+
+
         $scope.drugData = [];
         $http({
             method: 'GET',

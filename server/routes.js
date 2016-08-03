@@ -9,6 +9,7 @@ import path from 'path';
 
 export default function(app) {
   // Insert routes below
+  app.use('/api/masterplans', require('./api/masterplan'));
   app.use('/api/driverplanners', require('./api/driverplanner'));
   app.use('/api/basicplanners', require('./api/basicplanner'));
   app.use('/api/promotionscenarios', require('./api/promotionscenario'));

@@ -10,6 +10,7 @@ import Drug from '../api/drug/drug.model';
 import PromotionScenario from '../api/promotionscenario/promotionscenario.model';
 import BasicPlanner from '../api/basicplanner/basicplanner.model';
 import DriverPlanner from '../api/driverplanner/driverplanner.model';
+import MasterPlan from '../api/masterplan/masterplan.model';
 Thing.find({}).remove()
     .then(() => {
         Thing.create({
@@ -40,6 +41,22 @@ Thing.find({}).remove()
             info: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
                 'and openshift subgenerators'
         });
+    });
+
+MasterPlan.find({}).remove()
+    .then(() => {
+        MasterPlan.create({
+                name: 'MasterPlan 1',
+            },{
+                name: 'MasterPlan 2',
+            },{
+                name: 'MasterPlan 3',
+            },{
+                name: 'MasterPlan 4',
+            })
+            .then(() => {
+                console.log('finished populating MasterPlan Data');
+            });
     });
 
 User.find({}).remove()
