@@ -3,23 +3,40 @@
 //     broadcast();
 // });
 angular.module('clarosApp')
-    .controller('PlanSummaryCtrl', function($http, $scope, socket, $timeout, $window, $uibModal, Auth,MasterPlan) {
-        //Get Master Plan Data==================================================
-        $scope.masterplanArray = [];
-        $scope.currentMasterPlan = {};
+    .controller('PlanSummaryCtrl', function($http, $scope, socket, $timeout, $window, $uibModal, Auth, MasterPlan, $location) {
+        $scope.displayedCollection = []; //Table Attribut
+        $scope.itemsByPage = 5; //Pagination 
+        $scope.masterPlanEvent = {};
+        // =================================Add new Plan =======================================
+
+        $scope.addNewPlan = function() {
+                // console.log($scope.masterPlanInput);
+                $scope.masterPlanEvent.date = new Date();
+                $http({
+                    method: 'POST',
+                    url: 'api/masterplans',
+                    data: $scope.masterPlanEvent
+                }).success(function() {
+                    $scope.masterPlanEvent.name = "";
+                    var latestMasterPlan = $scope.masterPlanList[$scope.masterPlanList.length - 1];
+                    setTimeout(function() {
+                        $scope.generateBasicPlannerData(latestMasterPlan,$scope.drugData);
+                    }, 10);
+                })
+            }
+            // =================================Add new Plan =======================================
+
+        // =================================List Plan =======================================
+
         $http({
-            method: 'GET',
-            url: 'api/masterplans'
-        }).success(function(masterPlanData) {
-            $scope.masterplanArray = masterPlanData;
-        }).error(function() {
-            console.log("error")
-        });
-
-        $scope.getCurrentPlan = function(plan){
-            MasterPlan.setCurrentPlan(plan);
-        }
-
+                method: "GET",
+                url: "api/masterplans"
+            }).success(function(data) {
+                $scope.masterPlanList = data;
+                socket.syncUpdates('masterplan', $scope.masterPlanList);
+            })
+            // =================================List Plan =======================================
+            // =================================Get All Drugs  =======================================
 
         $scope.drugData = [];
         $http({
@@ -32,8 +49,68 @@ angular.module('clarosApp')
         }).error(function(data) {
             console.log("error")
         });
+        // =================================Get All Drugs  =======================================
 
-        $scope.generateBasicPlannerData = function(drugData) {
+        // =================================Remove Plan =======================================
+        $scope.removePlan = function(plan) {
+                $http({
+                    method: "DELETE",
+                    url: "api/masterplans/" + plan._id
+                }).success(function() {
+                    console.log("Success")
+                })
+            }
+            // =================================Remove Plan =======================================
+
+
+        // =================================Update Plan Name=======================================
+        $scope.myValidator = function(index, newValue, plan) {
+            // return newValue
+            console.log(plan);
+            plan.name = newValue;
+            $scope.updatePlan(plan);
+        };
+        // =================================Update Plan Name=======================================
+
+
+        // =================================Update a Plan=======================================
+        $scope.updatePlan = function(plan) {
+                $http({
+                    method: "PUT",
+                    url: "api/masterplans/" + plan._id,
+                    data: plan
+                }).success(function() {
+                    console.log("Success")
+                })
+            }
+            // =================================Update a Plan=======================================
+            // =================================Open Up a Plan=======================================
+        $scope.go = function(path, currentPlan) {
+            MasterPlan.setCurrentPlan(currentPlan);
+            $location.path(path);
+        };
+        // =================================Open Up a Plan=======================================
+
+        $scope.masterplanArray = {};
+        $scope.currentMasterPlan = {};
+        $http({
+            method: 'GET',
+            url: 'api/masterplans'
+        }).success(function(masterPlanData) {
+            $scope.masterplanArray = masterPlanData;
+        }).error(function() {
+            console.log("error")
+        });
+
+        $scope.getCurrentPlan = function(plan) {
+            MasterPlan.setCurrentPlan(plan);
+        }
+
+
+
+
+        $scope.generateBasicPlannerData = function(masterplan, drugData) {
+            console.log(drugData)
             var allScenarios = [];
             for (var i in drugData) {
                 var aDrug = drugData[i];
@@ -45,6 +122,7 @@ angular.module('clarosApp')
                     var anEvent = {};
                     anEvent['eventName'] = basicPlannerEvent[index];
                     anEvent.drug = drugID;
+                    anEvent.masterplan = masterplan._id;
                     var PriceorVolume = [true, false]
                     anEvent.price = PriceorVolume[_.random(0, 1)];
                     var quartersArray = ["1", "2", "3", "4"];

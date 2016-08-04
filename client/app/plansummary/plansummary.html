@@ -1,9 +1,81 @@
-<div>{{hello}}</div>
-<button ng-click="generateBasicPlannerData(drugData)">Generate Basic Planner Data</button>
-<button ng-click="generatePromotionData(drugData)">Generate Promotion Planner Data</button>
-<button ng-click="generateOptimisationData(drugData)">Generate Optimisational Planner Data</button>
-
-<select class="form-control" style="font-size:12px" ng-model="masterplan" ng-options="masterplan.name for masterplan in masterplanArray track by masterplan._id" ng-change="getCurrentPlan(masterplan)">
-</select>
-
+<div class="container">
+    <div class="row">
+        <div class="row">
+            <div class="box-content-filter">
+                <div class="col-md-3 " style="margin-top:-10px">
+                    <h3 style="color:#f13074">PLAN SUMMARY</h3>
+                </div>
+                <!-- Table for Plan -->
+            </div>
+        </div>
+        <div class="row" style="border:solid 1px #ccc">
+            <div class="col-md-12" style="margin-bottom:20px">
+                <!-- <div class="col-md-6" style="width:100%"> -->
+                <h4 style="color:#47a447">NEW PLAN</h4>
+                <p style="color:#5c5c5c;font-size:13px">This scenario planning portal provides a robust set of wizards for “what-if-planning”. It utilizes the information gathered for Long Range Forecast to create multiple “what-if” scenarios and compare them based on key KPIs. The results of the analysis are viewed through intuitive charts that plot the multiple scenarios.
+                </p>
+                <!-- </div> -->
+            </div>
+            <!-- <div class="col-md-12" style="margin-top:20px"> -->
+            <div class="col-md-6">
+                <!-- <input type="hidden" ng-keydown="$event.which === 13 && addNewPlan()"> -->
+                <div class="form-group row">
+                    <label for="example-search-input" class="col-xs-2 col-form-label">
+                        <button type="submit" class="btn btn-sm btn-success" ng-click="addNewPlan()"><i class="glyphicon glyphicon-plus">
+			</i> Add Plan</button>
+                    </label>
+                    <div class="col-xs-10">
+                        <input ng-model="masterPlanEvent.name" class="form-control" value="New Plan Name">
+                    </div>
+                </div>
+            </div>
+            <!-- </div> -->
+        </div>
+        <div class="row" style="margin-top:20px">
+            <div class="col-md-3 ">
+                <h4>PLAN TABLE SUMMARY</h4>
+            </div>
+            <table st-table="displayedCollection" st-safe-src="masterPlanList" class="table table-striped">
+                <thead style="border:solid 1px #ccc">
+                    <tr>
+                        <th colspan="2" style="border:solid 1px #ccc">
+                            <input st-search="" class="form-control" placeholder="Key In To Search" type="text" />
+                        </th>
+                    </tr>
+                    <tr>
+                        <th st-sort="name">Plan Name</th>
+                        <th st-sort="date">Date</th>
+                        <th st-sort="username">Created By</th>
+                        <th st-sort="username">Action</th>
+                    </tr>
+                </thead>
+                <tbody style="border:solid 1px #ccc">
+                    <tr ng-repeat="plan in displayedCollection" style="color:#5c5c5c;font-size:13px">
+                        <td>
+                            <span inline-edit="plan.name" inline-edit-validation="myValidator($index,newValue,plan)" inline-edit-on-blur="cancel"></span>
+                        </td>
+                        <td>{{plan.date | date}}</td>
+                        <td>{{plan.name}}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary" ng-click="go('/basicplanner',plan)" uib-tooltip="Open Plan">
+                                <i class="glyphicon glyphicon-folder-open" ></i>
+                            </button> &nbsp
+                            <button type="button" ng-click="removePlan(plan)" class="btn btn-sm btn-danger" uib-tooltip="Delete Plan">
+                                <i class="glyphicon glyphicon-remove-circle" ></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div st-pagination="" st-items-by-page="itemsByPage" st-displayed-pages="3"></div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Table for Plan -->
 <!-- <div> Current Plan = {{currentMasterPlan.name}} </div> -->

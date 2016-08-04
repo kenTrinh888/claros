@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 var PromotionscenarioSchema = new mongoose.Schema({
     name: String,
     drug: { type: mongoose.Schema.Types.ObjectId, ref: "drug" },
+    masterplan: { type: mongoose.Schema.Types.ObjectId, ref: "masterplan" },
     promotionactivity: String,
     interval: Number,
     frequency: Number,
