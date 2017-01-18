@@ -7,7 +7,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="/" class="navbar-brand"><img src="assets/images/claroslogo.png" alr="Claros Graphene"></a>
+            <a href="/home" class="navbar-brand"><img src="assets/images/claroslogo.png" alr="Claros Graphene"></a>
         </div>
         <div uib-collapse="nav.isCollapsed" class="navbar-collapse collapse" id="navbar-main">
             <ul class="nav navbar-nav">
@@ -30,18 +30,20 @@
                 <li ng-show="nav.isLoggedIn()" ui-sref-active="active"><a ui-sref="settings"><span class="glyphicon glyphicon-cog"></span></a></li>
                 <li ng-show="nav.isLoggedIn()"><a ui-sref="logout">Logout</a></li> -->
                 <!-- for development -->
-                 <li ui-sref-active="active"  ><a ui-sref="plansummary">Plan Summary</a></li>
+                <!-- <li ui-sref-active="active"><a href="http://demo.graphenesvc.com/">Home</a></li> -->
+                <li ui-sref-active="active"><a ui-sref="home">Home</a></li>
                 <li ui-sref-active="active"><a ui-sref="forecasting">Forecasting</a></li>
+                <li ui-sref-active="active"><a ui-sref="plansummary">Plan Summary</a></li>
                 <li ui-sref-active="active"><a ui-sref="basicplanner">Basic Planner</a></li>
-                 <li ui-sref-active="active"><a ui-sref="caseplanner">Case Planner</a></li>
+                <li ui-sref-active="active"><a ui-sref="caseplanner">Case Planner</a></li>
                 <li ui-sref-active="active"><a ui-sref="promotionplanner">Promotion Planner</a></li>
                 <li ui-sref-active="active"><a ui-sref="driverplanner">Optimisation Planner</a></li>
-                <li ui-sref-active="active"><a ui-sref="login">Login</a></li>
-                <li>
+                <!--   <li ng-hide="nav.isLoggedIn()" ui-sref-active="active"><a ui-sref="login">Login</a></li>
+                <li ng-if="nav.isLoggedIn()">
                     <p class="navbar-text">Hello {{ nav.getCurrentUser().name }}</p>
                 </li>
-                <li ui-sref-active="active"><a ui-sref="settings"><span class="glyphicon glyphicon-cog"></span></a></li>
-                <li><a ui-sref="logout">Logout</a></li>
+                <li ng-show="nav.isLoggedIn()" ui-sref-active="active"><a ui-sref="settings"><span class="glyphicon glyphicon-cog"></span></a></li>
+                <li ng-show="nav.isLoggedIn()" ng-click="logout()"><a ui-sref="logout">Logout</a></li> -->
             </ul>
         </div>
     </div>

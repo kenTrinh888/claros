@@ -8,7 +8,7 @@ function MasterPlanService($http) {
     var masterPlan = {};
     var currentMasterPlan = {};
 
-    masterPlan.turnVisible = function() {
+    masterPlan.turnVisiblePlan = function() {
         masterplanVisible = true;
         return masterplanVisible;
     }

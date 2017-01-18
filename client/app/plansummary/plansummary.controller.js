@@ -7,32 +7,51 @@ angular.module('clarosApp')
         $scope.displayedCollection = []; //Table Attribut
         $scope.itemsByPage = 5; //Pagination 
         $scope.masterPlanEvent = {};
+        // var userName = Auth.getCurrentUser(function(data){
+        //     console.log(data);
+        // });
+        var userName = Auth.getCurrentUser().name;
+        // console.log(userName)
+        // // console.log(MasterPlan.turnVisible())
+        //  console.log(MasterPlan.getVisibleProperty())
         // =================================Add new Plan =======================================
 
         $scope.addNewPlan = function() {
-                // console.log($scope.masterPlanInput);
+                $scope.masterPlanEvent.userName = userName;
                 $scope.masterPlanEvent.date = new Date();
+                $scope.masterPlanEvent.basicPlannerBaseCase = _.random(10, 50);
+                $scope.masterPlanEvent.promotionNumberofMonth = _.random(3, 12);
                 $http({
                     method: 'POST',
                     url: 'api/masterplans',
                     data: $scope.masterPlanEvent
                 }).success(function() {
-                    $scope.masterPlanEvent.name = "";
-                    var latestMasterPlan = $scope.masterPlanList[$scope.masterPlanList.length - 1];
-                    setTimeout(function() {
-                        $scope.generateBasicPlannerData(latestMasterPlan,$scope.drugData);
-                    }, 10);
+                    $http({
+                        method: "GET",
+                        url: "api/masterplans"
+                    }).success(function(data) {
+                        $scope.masterPlanRetrieved = data;
+                        $scope.masterPlanEvent.name = "";
+                        var latestMasterPlan = $scope.masterPlanRetrieved[$scope.masterPlanRetrieved.length - 1];
+                        setTimeout(function() {
+                            $scope.generateBasicPlannerData(latestMasterPlan, $scope.drugData);
+                            $scope.generatePromotionData(latestMasterPlan, $scope.drugData);
+                            $scope.generateOptimisationData(latestMasterPlan, $scope.drugData);
+                        }, 100);
+                    })
+
                 })
             }
             // =================================Add new Plan =======================================
 
-        // =================================List Plan =======================================
+        // =================================List Plan ==========================================
 
         $http({
                 method: "GET",
                 url: "api/masterplans"
             }).success(function(data) {
                 $scope.masterPlanList = data;
+                console.log("Master Plan: " + data);
                 socket.syncUpdates('masterplan', $scope.masterPlanList);
             })
             // =================================List Plan =======================================
@@ -55,10 +74,37 @@ angular.module('clarosApp')
         $scope.removePlan = function(plan) {
                 $http({
                     method: "DELETE",
-                    url: "api/masterplans/" + plan._id
+                    url: "api/basicplanners/removePlan/" + plan._id
                 }).success(function() {
-                    console.log("Success")
+                    console.log("Success remove plan in Basic Planner")
                 })
+
+                $http({
+                    method: "DELETE",
+                    url: "api/promotionscenarios/removePlan/" + plan._id
+                }).success(function() {
+                    console.log("Success remove plan in promotionscenarios Planner")
+                })
+
+                $http({
+                    method: "DELETE",
+                    url: "api/driverplanners/removePlan/" + plan._id
+                }).success(function() {
+                    console.log("Success remove plan in DriverPlannerScenarios Planner")
+                })
+
+                $timeout(function() {
+                    $http({
+                        method: "DELETE",
+                        url: "api/masterplans/" + plan._id
+                    }).success(function() {
+                        console.log("Success Remove Plan in Master Plan")
+                    });
+
+                });
+
+
+
             }
             // =================================Remove Plan =======================================
 
@@ -71,8 +117,6 @@ angular.module('clarosApp')
             $scope.updatePlan(plan);
         };
         // =================================Update Plan Name=======================================
-
-
         // =================================Update a Plan=======================================
         $scope.updatePlan = function(plan) {
                 $http({
@@ -106,11 +150,21 @@ angular.module('clarosApp')
             MasterPlan.setCurrentPlan(plan);
         }
 
-
-
-
+        // =================================Generate New Drug Insight Data=======================================
+        var channels = ["Pharmacy", "Hospital", "Government"];
+        $scope.generateInsightData = function(drugData) {
+                for (var i in drugData) {
+                    var aDrug = {};
+                    var aDrugID = drugData[i]._id;
+                    aDrug.drug = aDrugID
+                    for (var x in channels) {
+                        var channelName = channels[x];
+                        var channel
+                    }
+                }
+            }
+            // =================================Generate New Drug Insight Data=======================================
         $scope.generateBasicPlannerData = function(masterplan, drugData) {
-            console.log(drugData)
             var allScenarios = [];
             for (var i in drugData) {
                 var aDrug = drugData[i];
@@ -192,7 +246,7 @@ angular.module('clarosApp')
             var json = JSON.stringify(allScenarios);
             $http({
                 method: 'POST',
-                url: 'api/basicplanners/bootstrap/newdata',
+                url: 'api/basicplanners/',
                 data: json
             }).success(function() {
                 console.log("success")
@@ -201,19 +255,19 @@ angular.module('clarosApp')
         }
 
 
-        $scope.generatePromotionData = function(drugData) {
+        $scope.generatePromotionData = function(masterplan, drugData) {
             var allScenarios = [];
             for (var i in drugData) {
                 var aDrug = drugData[i];
                 var drugID = aDrug._id;
-                // console.log(drugID);
                 var PromotionPlanner = ["Scenario 1", "Scenario 2", "Scenario 3"];
                 var PromotionScenarios = [];
                 for (var index in PromotionPlanner) {
                     var anScenario = {};
                     anScenario.name = PromotionPlanner[index];
                     anScenario.drug = drugID;
-                    var promotionActivities = ["Bundle", "Discount", "Freebie"];
+                    anScenario.masterplan = masterplan._id;
+                    var promotionActivities = ["Bundle", "Freebie", "Discount"];
                     // var randomIndex = _.random(0,2);
                     var anPromotionName = promotionActivities[index];
                     anScenario.promotionactivity = anPromotionName;
@@ -231,27 +285,32 @@ angular.module('clarosApp')
             // console.log(json);
             $http({
                 method: 'POST',
-                url: 'api/promotionscenarios/bootstrap/newdata',
+                url: 'api/promotionscenarios/',
                 data: json
             }).success(function() {
                 console.log("success")
             })
         }
 
-        $scope.generateOptimisationData = function(drugData) {
+        $scope.generateOptimisationData = function(masterplan, drugData) {
             var allScenarios = [];
-            var KOLactivitiyObject = {};
-            KOLactivitiyObject.cost = _.random(100, 500);
-            KOLactivitiyObject.expectRevenue = _.random(100, 500);
-            var InnovationObject = {};
-            InnovationObject.cost = _.random(100, 500);
-            InnovationObject.expectRevenue = _.random(100, 500);
-            var SaleObject = {};
-            SaleObject.cost = _.random(100, 500);
-            SaleObject.expectRevenue = _.random(100, 500);
+            var Drivers = [];
+            var Months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            // Driver Array and months
             var KOLactivitiy = ["KOL Events", "KOL Sponsorship", "Detailing Coverage"];
             var Innovation = ["Innovation Impact", "Innovation Duration"];
             var SalesandDiscount = ["Sales Coverage", "Average Discount", "Sales Frequency"];
+            var Channels = ["All", "Government", "Hospital", "Pharmacy"];
+            for (var yindex in KOLactivitiy) {
+                Drivers.push(KOLactivitiy[yindex]);
+            }
+            for (var xindex in Innovation) {
+                Drivers.push(Innovation[xindex]);
+            }
+            for (var index in SalesandDiscount) {
+                Drivers.push(SalesandDiscount[index]);
+            }
+
             for (var i in drugData) {
                 var aDrug = drugData[i];
                 var drugID = aDrug._id;
@@ -259,14 +318,27 @@ angular.module('clarosApp')
                 var DriverPlannerScenarios = ["Scenario 1", "Scenario 2", "Scenario 3"];
 
                 for (var m in DriverPlannerScenarios) {
+                    var KOLactivitiyObject = {};
+                    KOLactivitiyObject.cost = _.random(100, 500);
+                    KOLactivitiyObject.expectRevenue = _.random(100, 500);
+                    var InnovationObject = {};
+                    InnovationObject.cost = _.random(100, 500);
+                    InnovationObject.expectRevenue = _.random(100, 500);
+                    var SaleObject = {};
+                    SaleObject.cost = _.random(100, 500);
+                    SaleObject.expectRevenue = _.random(100, 500);
+
+
+                    // Create new Optimisational 
                     var anOptimisationDriver = {};
                     var driverName = DriverPlannerScenarios[m];
+                    anOptimisationDriver.masterplan = masterplan._id;
                     anOptimisationDriver.name = driverName;
                     anOptimisationDriver.drug = drugID;
-                    anOptimisationDriver.All = _.random(100, 1000);
-                    anOptimisationDriver.Government = _.random(100, 1000);
-                    anOptimisationDriver.Pharmacy = _.random(100, 1000);
-                    anOptimisationDriver.Hospital = _.random(100, 1000);
+                    // anOptimisationDriver.All = _.random(100, 1000);
+                    // anOptimisationDriver.Government = _.random(100, 1000);
+                    // anOptimisationDriver.Pharmacy = _.random(100, 1000);
+                    // anOptimisationDriver.Hospital = _.random(100, 1000);
                     var KOLarray = [];
                     var InnovationArray = [];
                     var SalesArray = [];
@@ -330,7 +402,56 @@ angular.module('clarosApp')
                     SaleObject.name = "Sales And Discount"
                     SaleObject.activities = SalesArray;
                     anOptimisationDriver.Sales = SaleObject;
+                    var expectedRevenueArray = [];
+                    for (var k in Channels) {
+                        var expectRevenueObject = {}
+                        var aChanel = Channels[k];
+                        expectRevenueObject.channel = aChanel;
+                        if (k == 0) {
+                            expectRevenueObject.revenue = _.random(900, 1000)
+                        } else {
+                            expectRevenueObject.revenue = _.random(200, 300)
+                        }
+                        expectedRevenueArray.push(expectRevenueObject)
 
+                    }
+                    anOptimisationDriver.ExpectedRev = expectedRevenueArray;
+
+
+                    // var drivermonths = [];
+                    anOptimisationDriver['monthlyplan'] = {};
+                    var monthlyObject = [];
+                    for (var m in Drivers) {
+                        var aDriverMonthlyObject = {};
+                        var aDriverName = Drivers[m];
+                        aDriverMonthlyObject.driver = aDriverName;
+                        var monthsArray = [];
+                        var aMonthSpend;
+                        for (var n in Months) {
+                            // console.log(aDriverName);
+                            if (aDriverName == "KOL Events" || aDriverName == "KOL Sponsorship") {
+                                aMonthSpend = _.random(100, 200);
+                            } else if (aDriverName == "Detailing Coverage" || aDriverName == "Sales Coverage" || aDriverName == "Average Discount") {
+                                aMonthSpend = _.random(5, 100);
+                            } else if (aDriverName == "Innovation Duration") {
+                                aMonthSpend = _.random(5, 36);
+                            } else if (aDriverName == "Inovation Impact") {
+                                aMonthSpend = _.random(1, 5);
+                            } else {
+                                aMonthSpend = _.random(1, 10);
+                            }
+                            monthsArray.push(aMonthSpend);
+
+                        }
+                        aDriverMonthlyObject.month = monthsArray;
+                        monthlyObject.push(aDriverMonthlyObject);
+                    }
+
+                    // console.log(monthlyObject)
+                    anOptimisationDriver.monthlyplan.monthlybudget = monthlyObject;
+                    anOptimisationDriver.monthlyplan.sizeX = 4;
+                    anOptimisationDriver.monthlyplan.sizeY = 4;
+                    // console.log(anOptimisationDriver.monthlyplan)
                     allScenarios.push(anOptimisationDriver);
 
                 }
@@ -338,10 +459,9 @@ angular.module('clarosApp')
 
             }
             var json = JSON.stringify(allScenarios);
-            console.log(json);
             $http({
                 method: 'POST',
-                url: 'api/driverplanners/bootstrap/newdata',
+                url: 'api/driverplanners/',
                 data: json
             }).success(function() {
                 console.log("success")

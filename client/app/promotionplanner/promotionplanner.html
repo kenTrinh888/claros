@@ -2,14 +2,23 @@
     <div class="row" style="border:1px solid #ccc">
         <div class="box-content-filter">
             <div class="col-md-2 promotionfilter">
-                <h3 style="color:#F18630"> PROMOTION PLANNER</h3>
+                <h3 style="color:#F18630"> PRODUCTION PLANNER</h3>
+            </div>
+            <div class="form-group col-md-3" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="drug"> Plan </label>
+                </div>
+                <div class="col-md-8">
+                    <select class="form-control" ng-model="currentMasterPlan" ng-options="currentMasterPlan.name for currentMasterPlan in masterplans track by currentMasterPlan._id" ng-change="getPromotionscenario(currentMasterPlan._id,drugChosen._id)">
+                    </select>
+                </div>
             </div>
             <div class="form-group col-md-3" style="margin-top:7px;">
                 <div class="col-md-3">
                     <label for="drug"> Drug </label>
                 </div>
                 <div class="col-md-8">
-                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getPromotionscenario(drugChosen._id)">
+                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getPromotionscenario(currentMasterPlan._id,drugChosen._id)">
                     </select>
                 </div>
             </div>
@@ -33,12 +42,12 @@
                     <label for="promotionactivity"> Months Input </label>
                 </div>
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Number of Months" style="width:200px" value="12">
+                    <input type="text" class="form-control" id="formGroupExampleInput" ng-model="currentMasterPlan.promotionNumberofMonth" placeholder="Number of Months" style="width:200px" ng-change="UpdateNumberofMonth(currentMasterPlan)">
                 </div>
             </div>
-            <div class="col-md-1" style="margin-top:7px">
-                <a class="pull-left btn btn-primary analyse-button-promotion " ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
-            </div>
+        </div>
+        <div class="col-md-2" style="margin-bottom:7px">
+            <a class="pull-left btn btn-primary analyse-button-promotion " ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
         </div>
     </div>
     <!-- <div ng-show="displayScenario"> -->
@@ -52,13 +61,13 @@
                             <div class="box-header-btns pull-right">
                                 <a title="settings" ng-click="openSettings(scenario)"><i class="glyphicon glyphicon-cog"></i></a>
                                 <a title="Remove scenario" ng-click="remove(scenario)"><i class="glyphicon glyphicon-trash"></i></a>
-                      <!--            <input type="hidden" id="updateModel" ng-click="updateModel(scenario)"> -->
+                                <!--            <input type="hidden" id="updateModel" ng-click="updateModel(scenario)"> -->
                             </div>
                         </div>
                         <div class="box-content">
                             <form class="form-horizontal" role="form">
                                 <div class="form-group form-group-promotion">
-                                    <label for="promotionactivity" class="col-sm-5 control-label" style="font-size:11px">Promotion Act.</label>
+                                    <label for="promotionactivity" class="col-sm-5 control-label" style="font-size:11px">Production Act.</label>
                                     <div class="col-sm-7">
                                         <select name="promotionactivity" id="promotionactivity" class="form-control" ng-model="scenario.promotionactivity" ng-change="updateModel(scenario)">
                                             <option ng-repeat="option in promotionActivity" value="{{option.name}}">{{option.name}}</option>
@@ -67,23 +76,22 @@
                                 </div>
                                 <div class="form-group form-group-promotion">
                                     <label for="interval" class="col-sm-5 control-label" style="font-size:11px">Interval</label>
-                                    <div class="col-sm-7">
+                                    <div class="col-sm-7" ng-click="updateModel(scenario)">
                                         <rzslider rz-slider-model="scenario.interval" rz-slider-options="intervalRange.options"></rzslider>
                                     </div>
                                 </div>
                                 <div class="form-group form-group-promotion">
                                     <label for="frequency" class="col-sm-5 control-label" style="font-size:11px">Frequency</label>
-                                    <div class="col-sm-7">
+                                    <div class="col-sm-7" ng-click="updateModel(scenario)">
                                         <rzslider rz-slider-model="scenario.frequency" rz-slider-options="frequencylRange.options"></rzslider>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="budget" class="col-sm-5 control-label" style="font-size:11px">Discount</label>
-                                    <div class="col-sm-7">
+                                    <div class="col-sm-7" ng-click="updateModel(scenario)">
                                         <rzslider rz-slider-model="scenario.discount" rz-slider-options="discountRange.options"></rzslider>
                                     </div>
                                 </div>
-                               
                             </form>
                         </div>
                     </div>
@@ -92,7 +100,7 @@
         </div>
     </div>
     <div>
-        <input type="hidden" id="getPromotionscenario" ng-click="getPromotionscenario(drugChosen._id)">
+        <input type="hidden" id="getPromotionscenario" ng-click="getPromotionscenario(currentMasterPlan._id,drugChosen._id)">
         <input type="hidden" id="arrangePosition" ng-click="broadcast()">
         <input type="hidden" id="dataChartAdd" ng-click="addChartData(allscenarios)">
         <input type="hidden" id="PharmadataChartAdd" ng-click="addChartDataPharma(allscenarios)">

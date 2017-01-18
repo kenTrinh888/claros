@@ -5,33 +5,40 @@
                 <div class="col-md-2 promotionfilter">
                     <h3 style="color:#F18630"> OPTIMISATION PLANNER</h3>
                 </div>
+                <div class="form-group col-md-3" style="margin-top:7px;">
+                    <div class="col-md-3">
+                        <label for="drug"> Plan </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" ng-model="currentMasterPlan" ng-options="currentMasterPlan.name for currentMasterPlan in masterplans track by currentMasterPlan._id" ng-change="getDriverScenario(currentMasterPlan._id,drugChosen._id)">
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group col-md-4" style="margin-top:10px">
                     <div class="col-md-2">
                         <label for="drug"> Drug </label>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" style="width:200px" ng-change="getDriverScenario(drugChosen._id)">
+                        <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" style="width:200px" ng-change="getDriverScenario(currentMasterPlan._id,drugChosen._id)">
                         </select>
                     </div>
                 </div>
-                <div class="form-group col-md-2" style="margin-top:10px">
+<!--                 <div class="form-group col-md-2" style="margin-top:10px">
                     <div class="col-md-3">
                         <label for="promotionactivity"> KPI </label>
                     </div>
                     <div class="col-md-2">
                         <select class="form-control" ng-model="kpi.name" style="width:120px">
                             <option value="Revenue">Revenue</option>
-                            <option value="Volume">Volume</option>
                         </select>
                     </div>
-                </div>
+                </div> -->
                 <div class="form-group col-md-3" style="margin-top:10px">
                     <div class="col-md-3">
                         <label for="promotionactivity"> Time Period </label>
                     </div>
                     <div class="col-md-3">
                         <select class="form-control" ng-model="period.time" style="width:120px">
-                            <option value="6">6 months</option>
                             <option value="12">12 months</option>
                         </select>
                     </div>
@@ -39,21 +46,22 @@
             </div>
             <!-- <div class="col-md-12"> -->
             <div class="col-md-6" style="margin-left:-50px;margin-bottom:10px">
-                <a class="pull-right btn btn-primary analyse-button" ng-click="addWidget()"><i class="glyphicon glyphicon-plus"></i> Add Scenario</a>
-                <a class="pull-right btn btn-primary analyse-button" ng-click="DisplayMonthlyPlanning()"></i> Monthly Planning</a>
+                <a class="pull-right btn btn-primary analyse-button" ng-click="addWidget()" ng-show="displayScenario"><i class="glyphicon glyphicon-plus" ></i> Add Scenario</a>
+                <a class="pull-right btn btn-primary analyse-button" ng-click="DisplayMonthlyPlanning()" ng-show="displayScenario"></i> Monthly Planning</a>
+                <a class="pull-right btn btn-primary analyse-button" ng-click="DisplayScenario()" ng-show="displayMonthlyPlanning"></i>Back to Scenario</a>
             </div>
             <!-- </div> -->
             <input type="hidden" id="displayScenario" ng-click="DisplayScenario()" style="margin-top:10px">
-            <input type="hidden" id="getAllDriverScenario" ng-click="getDriverScenario(drugChosen._id)">
+            <input type="hidden" id="getAllDriverScenario" ng-click="getDriverScenario(currentMasterPlan._id,drugChosen._id)">
         </div>
     </div>
     <div>
         <input type="hidden" id="arrangePosition" ng-click="broadcast()">
-        <input type="hidden" id="dataChartAdd" ng-click="addChartData(allscenarios)">
-        <input type="hidden" id="dataChartAddRevenue" ng-click="dataChartAddRevenue(allscenarios)">
+        <!--         <input type="hidden" id="dataChartAdd" ng-click="addChartData(allscenarios)">
+        <input type="hidden" id="dataChartAddRevenue" ng-click="dataChartAddRevenue(allscenarios)"> -->
     </div>
     <div ng-show="displayScenario">
-        <div class="vertical_scroll_driver ">
+        <div class="vertical_scroll_driver">
             <div gridster="gridsterOption">
                 <ul>
                     <li gridster-item ng-repeat="scenario in allscenarios" size-x="6">
@@ -77,7 +85,7 @@
                                             <tbody>
                                                 <tr ng-repeat="kol in scenario.KOLActivity.activities">
                                                     <td class="driver-tablerow" style="width:15%">{{kol.ActivityName}}</td>
-                                                    <td>
+                                                    <td ng-click="updateModel(scenario)">
                                                         <rzslider ng-if="kol.ActivityName == 'KOL Events'" rz-slider-model="kol.Impact" rz-slider-options="KOLevent.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                         <rzslider ng-if="kol.ActivityName == 'KOL Sponsorship'" rz-slider-model="kol.Impact" rz-slider-options="KOLSponsoship.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                         <rzslider ng-if="kol.ActivityName == 'Detailing Coverage'" rz-slider-model="kol.Impact" rz-slider-options="DetailingCoverage.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
@@ -97,7 +105,7 @@
                                             <tbody>
                                                 <tr ng-repeat="innovation in scenario.Innovation.activities">
                                                     <td class="driver-tablerow" style="width:15%">{{innovation.ActivityName}}</td>
-                                                    <td>
+                                                    <td ng-click="updateModel(scenario)">
                                                         <rzslider ng-if="innovation.ActivityName == 'Innovation Impact'" rz-slider-model="innovation.Impact" rz-slider-options="InnovationImpact.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                         <rzslider ng-if="innovation.ActivityName == 'Innovation Duration'" rz-slider-model="innovation.Impact" rz-slider-options="InnovationDuration.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                     </td>
@@ -115,7 +123,7 @@
                                             <tbody>
                                                 <tr ng-repeat="sales in scenario.Sales.activities">
                                                     <td class="driver-tablerow" style="width:15%">{{sales.ActivityName}}</td>
-                                                    <td>
+                                                    <td ng-click="updateModel(scenario)">
                                                         <rzslider ng-if="sales.ActivityName == 'Sales Coverage'" rz-slider-model="sales.Impact" rz-slider-options="SalesCoverage.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                         <rzslider ng-if="sales.ActivityName == 'Average Discount'" rz-slider-model="sales.Impact" rz-slider-options="SalesCoverage.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                         <rzslider ng-if="sales.ActivityName == 'Sales Frequency'" rz-slider-model="sales.Impact" rz-slider-options="SalesFrequency.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
@@ -125,13 +133,15 @@
                                         </table>
                                     </div>
                                 </div>
-                                <input type="hidden" id="updateModel" ng-click="updateModel(scenario)">
+                                <!-- <input type="hidden" id="updateModel" ng-click="updateModel(scenario)"> -->
                             </div>
                         </div>
                     </li>
                 </ul>
             </div>
         </div>
+        <input type="hidden" id="addChartData" ng-click="addChartData(allscenarios,scenarioChosen)">
+        <input type="hidden" id="dataChartAddRevenue" ng-click="dataChartAddRevenue(allscenarios)">
         <div gridster="gridsterItem" style="margin-top:20px">
             <ul class="with-3d-shadow with-transitions">
                 <li gridster-item="item" ng-repeat="item in standardItems">
@@ -140,6 +150,8 @@
                             <h3>{{item.name}}</h3>
                         </div>
                         <div class="box-content">
+                            <select ng-if="$index == 0" class="form-control" ng-model="scenarioChosen" ng-options="scenarioChosen.name for scenarioChosen in allscenarios track by scenarioChosen._id" ng-change="addChartData(allscenarios,scenarioChosen)">
+                            </select>
                             <nvd3 ng-if="$index === 0" options="options" data="dataChart" config="config" api="item.api" events="events"></nvd3>
                             <nvd3 ng-if="$index === 1" options="optionsCat" data="dataChartRevenue" config="config" events="events" api="item.api"></nvd3>
                         </div>
@@ -152,7 +164,7 @@
         <div class="vertical_scroll_Monthly">
             <div gridster="gridstermonthlyBudget">
                 <ul>
-                    <li gridster-item size-x="6" ng-repeat="event in monthlyBudget" class="gridster-item-basic">
+                    <li gridster-item size-x="6" ng-repeat="event in allscenarios" class="gridster-item-basic">
                         <div class="box-basic">
                             <div class="box-header">
                                 <h3>{{ event.name }}</h3>
@@ -164,38 +176,41 @@
                                         <th ng-repeat="month in months">{{month}}</th>
                                         <!-- <th>% Impact</th> -->
                                     </tr>
-                                    <tr ng-repeat="monthbudget in event.monthlybudget" class="basic-tablerow">
+                                    <tr ng-repeat="monthbudget in event.monthlyplan.monthlybudget track by $index" class="basic-tablerow">
                                         <td>{{ monthbudget.driver }}</td>
                                         <td ng-repeat="budget in monthbudget.month track by $index">
-                                            <span inline-edit="budget" inline-edit-validation="myUpdateHandler($index,newValue)" inline-edit-filter="currency" inline-edit-on-blur="cancel"></span>
+                                            <div ng-click="updateMonthly(event,monthbudget,$index,newValue)">
+                                                <span ng-show="monthbudget.driver== 'KOL Events' || monthbudget.driver== 'KOL Sponsorship' " inline-edit="budget" inline-edit-validation="myValidator($index,newValue,event)" inline-edit-filter="currency" inline-edit-on-blur="cancel"></span>
+                                                <span ng-hide="monthbudget.driver== 'KOL Events' || monthbudget.driver== 'KOL Sponsorship' " inline-edit="budget" inline-edit-validation="myValidator($index,newValue,event)" inline-edit-on-blur="cancel"></span>
+                                                <!--     <input type="hidden" id="updateMonthly" ng-click="updateMonthly(monthbudget)"> -->
                                         </td>
+                                    </tr>
+                                </table>
+                                <input type="hidden" id="generateChannelLineGraph" ng-click="generateChannelLineGraph(allscenarios)">
+                                </div>
                             </div>
-                            </td>
-                            </tr>
-                            </table>
-                            <input type="hidden" id="updateModel" ng-click="updateModel(event)">
-                            <input type="hidden" id="countmonthlybudget" ng-click="countmonthlybudget()">
-                        </div>
+                    </li>
+                </ul>
+                </div>
             </div>
-            </li>
-            </ul>
-        </div>
-    </div>
-    <div ng-show="displayMonthlyPlanning">
-        <div gridster="gridsterLineChart">
-            <ul>
-                <li gridster-item="brand" ng-repeat=" category in GridsterItemforLineChart" class="gridster-item-basic">
-                    <div class="box-driver-linechart">
-                        <div class="box-header">
-                            <h3>{{ category.name }}</h3>
-                        </div>
-                        <div class="box-content">
-                            <div ng-if="$index === 0" id="foodanddrink"></div>
-                            <div ng-if="$index === 1" id="homecare"></div>
-                            <div ng-if="$index === 2" id="personalcare"></div>
-                        </div>
+            <div ng-show="displayMonthlyPlanning">
+                <div class="vertical_scroll_line_monthly">
+                    <div gridster="gridsterLineChart">
+                        <ul>
+                            <li gridster-item ng-repeat=" category in GridsterItemforLineChart" class="gridster-item-basic">
+                                <div class="box-driver-linechart">
+                                    <div class="box-header">
+                                        <h3>{{ category.name }}</h3>
+                                    </div>
+                                    <div class="box-content">
+                                        <div ng-if="$index === 0" id="all"></div>
+                                        <div ng-if="$index === 1" id="pharmacy"></div>
+                                        <div ng-if="$index === 2" id="hospital"></div>
+                                        <div ng-if="$index === 3" id="government"></div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
-                </li>
-            </ul>
-        </div>
-    </div>
+                </div>
+            </div>

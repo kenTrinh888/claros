@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('clarosApp')
-    .controller('basicplannerController', function($scope, $http, $timeout, socket, $uibModal,MasterPlan) {
+    .controller('basicplannerController', function($scope, $http, $timeout, socket, $uibModal, MasterPlan) {
         $('#analyse').trigger('click');
-        console.log(MasterPlan.getCurrentMasterPlan());
+        $scope.currentMasterPlan = MasterPlan.getCurrentMasterPlan();
         $scope.KPIChosen = { "id": 1, "name": "Revenue" }
-        $scope.KPI = [{ "id": 1, "name": "Revenue" }, { "id": 2, "name": "Volume" }]
+        $scope.KPI = [{ "id": 1, "name": "Revenue" }]
 
 
         // ------------------------Seting of Gridster  -------------------------------------
@@ -36,33 +36,41 @@ angular.module('clarosApp')
             // console.log(data)
             $scope.drugs = data;
             $scope.drugChosen = $scope.drugs[0];
-            setTimeout(function() {
-                $('#getBasicEvent').trigger('click');
-            }, 100)
+            if ($scope.currentMasterPlan != null) {
+                setTimeout(function() {
+                    $('#getBasicEvent').trigger('click');
+                }, 100)
+            }
+        }).error(function(data) {
+            console.log("Error retrieved Events");
+        });
 
+        //Get All Master Plan
+        $http({
+            method: 'GET',
+            url: '/api/masterplans/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.masterplans = data;
         }).error(function(data) {
             console.log("Error retrieved drugs");
         });
-        $scope.getBasicEvent = function(drugid) {
-                // console.log(drugid)
+        $scope.getBasicEvent = function(masterplanID, drugid) {
+                // console.log(masterplanID)
+                var URLGet = '/api/basicplanners/' + drugid + "/" + masterplanID
+                    // console.log(URLGet);
                 $http({
                     method: 'GET',
-                    url: '/api/basicplanners/'
+                    url: URLGet
                 }).success(function(data) {
-                    $scope.events = [];
-                    for (var i in data) {
-                        var aEvent = data[i];
-                        if (aEvent.drug == drugid) {
-                            $scope.events.push(aEvent)
-                        }
-                    }
+                    $scope.events = data;
                     socket.syncUpdates('basicplanner', $scope.events);
                     setTimeout(function() {
                         $('#analyse').trigger('click');
                         $("#generateGraph").trigger('click')
                     }, 100);
                 }).error(function(data) {
-                    console.log("Error retrieved food order");
+                    console.log("Error retrieved Events ");
                 });
 
             }
@@ -84,7 +92,7 @@ angular.module('clarosApp')
             })
         });
         $scope.$on('gridster-mobile-changed', function(gridster) {
-             $timeout(function() { $('#analyse').trigger('click'); }, 100);
+            $timeout(function() { $('#analyse').trigger('click'); }, 100);
         })
 
         // ------------------------angularjs function document ready render-------------------------------------
@@ -101,11 +109,16 @@ angular.module('clarosApp')
                 floor: -50,
                 ceil: 50,
                 step: 1,
+                id: "new ",
                 translate: function(value, sliderId, label) {
                     switch (label) {
                         default: return value + '%'
                     }
-                }
+                },
+                onChange: function(sliderId, modelValue, highValue, pointerType) {
+                    // console.log(sliderId)
+                    setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
+                },
             }
         };
         // ------------------------SliderRange -------------------------------------
@@ -127,56 +140,53 @@ angular.module('clarosApp')
         $scope.addNewEvent = function() {
                 console.log($scope.events[0])
                 var drugID = $scope.events[0].drug
+                var planID = $scope.currentMasterPlan._id;
                 var trackingNumber = $scope.events.length + 1;
-                var eventNewName = "Event" + trackingNumber;
-                var newEvent = {
-                    eventName: eventNewName,
-                    drug: drugID,
-                    year: true,
-                    expectedRevenue: _.random(-20, 50),
-                    quarters: [{
-                        quaterName: "1",
-                        quarterSpend: _.random(100, 500),
-                        quarterImpact: _.random(-50, 50),
-                        quarterCases: [
-                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
-                        ]
-                    }, {
-                        quaterName: "2",
-                        quarterSpend: _.random(100, 500),
-                        quarterImpact: _.random(-50, 50),
-                        quarterCases: [
-                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
-                        ]
-                    }, {
-                        quaterName: "3",
-                        quarterSpend: _.random(100, 500),
-                        quarterImpact: _.random(-50, 50),
-                        quarterCases: [
-                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
-                        ]
-                    }, {
-                        quaterName: "4",
-                        quarterSpend: _.random(100, 500),
-                        quarterImpact: _.random(-50, 50),
-                        quarterCases: [
-                            { quarterCase: "Base Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Best Case", quarterCaseImpact: _.random(-50, 50) },
-                            { quarterCase: "Worst Case", quarterCaseImpact: _.random(-50, 50) }
-                        ]
-                    }]
+                var eventNewName = "Event " + trackingNumber;
+                var anEvent = {};
+                anEvent['eventName'] = eventNewName;
+                anEvent.drug = drugID;
+                anEvent.masterplan = planID;
+                var PriceorVolume = [true, false]
+                anEvent.price = PriceorVolume[_.random(0, 1)];
+                var quartersArray = ["1", "2", "3", "4"];
+                var quarters = [];
+                for (var qIndex in quartersArray) {
+                    var aQuarterEvent = {};
+                    aQuarterEvent.quaterName = quartersArray[qIndex];
+                    var quarterCasesArray = ["Base Case", "Best Case", "Worst Case"];
+                    var quarterCases = [];
+                    for (var cIndex in quarterCasesArray) {
+                        var aQuarderCase = {};
+                        aQuarderCase.quarterCase = quarterCasesArray[cIndex];
+                        var quarterCaseImpact = _.random(-50, 50);
+                        var quarterCaseSpend = _.random(100, 500);
+                        aQuarderCase.quarterCaseSpend = quarterCaseSpend;
+                        aQuarderCase.quarterCaseImpact = quarterCaseImpact;
+                        quarterCases.push(aQuarderCase);
 
-                };
+                    }
+
+                    var quarterSpend = _.random(100, 300);
+                    var quarterImpact = _.random(-50, 50);
+                    aQuarterEvent.quarterSpend = quarterSpend;
+                    aQuarterEvent.quarterImpact = quarterImpact;
+                    aQuarterEvent.quarterCases = quarterCases;
+                    quarters.push(aQuarterEvent);
+
+
+                }
+                anEvent.quarters = quarters;
+
+                var expectedRevenue = _.random(-20, 50);
+                anEvent['expectedRevenue'] = expectedRevenue;
+
+                //     basicPlannerEvents.push(anEvent);
+                // console.log(newEvent);
                 $http({
                     method: 'POST',
                     url: 'api/basicplanners',
-                    data: newEvent
+                    data: anEvent
                 }).success(function() {
                     console.log("success")
                     $(".vertical_scroll_basicPlanner").animate({ scrollTop: $('.vertical_scroll_basicPlanner').prop("scrollHeight") }, 100);
@@ -231,8 +241,15 @@ angular.module('clarosApp')
         };
         $scope.master = {};
         $scope.updateModel = function(event) {
-            console.log(event)
+            console.log(event);
+            var sumOfImpact = 0;
+            for (var i in event.quarters) {
+                var quarterImpact = event.quarters[i].quarterImpact;
+                sumOfImpact += quarterImpact / 100;
                 // event.expectedRevenue = _.random(10,80)
+            }
+            console.log(sumOfImpact / 4)
+            event.expectedRevenue = sumOfImpact / 4 * $scope.currentMasterPlan.basicPlannerBaseCase;
             $http({
                 method: 'PUT',
                 url: '/api/basicplanners/' + event._id,
@@ -252,11 +269,16 @@ angular.module('clarosApp')
             setTimeout(function() { $('#analyse').trigger('click'); }, 100);
         }
 
-        $scope.$on("slideEnded", function() {
-            setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
+        $scope.$on("slideEnded", function(value) {
+            console.log(value);
+            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+            // setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
 
         });
+
+        $scope.onSliderChange = function() {
+            console.log("change")
+        }
 
         // $scope.$on("onChange", function() {
 
@@ -282,7 +304,9 @@ angular.module('clarosApp')
 
             $(".charting-waterfall").empty();
             // console.log(data)
-            var water = { 'name': 'Base Case', 'value': _.random(20, 100) };
+            var water = { 'name': 'Base Case' };
+            var waterFallBaseValue = $scope.currentMasterPlan.basicPlannerBaseCase;
+            water.value = waterFallBaseValue;
             data.push(water);
             for (var i in dataChart) {
                 // console.log(i)
@@ -359,7 +383,14 @@ angular.module('clarosApp')
 
             chart.append("g")
                 .attr("class", "y axis")
-                .call(yAxis);
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Revenue ('000 000)");
+
 
             var bar = chart.selectAll(".bar")
                 .data(data)

@@ -2,13 +2,15 @@
 
 (function() {
 
-  function AuthService($location, $http, $cookies, $q, appConfig, Util, User) {
+  function AuthService($location, $http, $cookies, $q, appConfig, Util, User,$state) {
     var safeCb = Util.safeCb;
     var currentUser = {};
     var userRoles = appConfig.userRoles || [];
 
     if ($cookies.get('token') && $location.path() !== '/logout') {
       currentUser = User.get();
+    }else{
+      $location.path('/');
     }
 
     var Auth = {
@@ -50,6 +52,7 @@
       logout() {
         $cookies.remove('token');
         currentUser = {};
+       
       },
 
       /**

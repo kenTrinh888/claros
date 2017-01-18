@@ -11,6 +11,7 @@
 
 import _ from 'lodash';
 import Basicplanner from './basicplanner.model';
+var Drug = require('../drug/drug.model');
 
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
@@ -103,7 +104,6 @@ export function destroy(req, res) {
 }
 
 // Empty and Insert New Data
-// Gets a list of Basicplanners
 exports.bootstrap = function(req, res) {
 
     Basicplanner.remove(function(err) {
@@ -113,6 +113,47 @@ exports.bootstrap = function(req, res) {
     }).then(() => {
         Basicplanner.create(req.body)
     }).then(() => {
-        console.log('finished populating Basic Planner');
+        res.send('finished populating Basic Planner')
+
     });
+}
+
+
+// Empty New Data
+exports.removeAll = function(req, res) {
+
+    Basicplanner.remove(function(err) {
+        if (err) {
+            handleError(res)
+        }
+    }).then(() => {
+        res.send('finished destroy Basic Planner')
+
+    });
+}
+
+//FIND Scenario by Drug and Plan
+exports.findByDrugandPlan = function(req, res) {
+    console.log(req.params.drugID);
+    console.log(req.params.masterplanID);
+
+    Basicplanner.find({ drug: req.params.drugID, masterplan: req.params.masterplanID })
+        .populate('Basicplanner drug masterplan')
+        .exec()
+        .then(handleEntityNotFound(res))
+        .then(respondWithResult(res))
+        .catch(handleError(res));
+}
+
+//FIND plan and remove
+exports.findByplanAndRemove = function(req, res) {
+    Basicplanner.find({ masterplan: req.params.masterplanID })
+        .remove(function(err) {
+            if (err) {
+                handleError(res)
+            }
+        }).then(() => {
+
+            res.send("Finish find plan and Remove")
+        }).then(respondWithResult(res))
 }

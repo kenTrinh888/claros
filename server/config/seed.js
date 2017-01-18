@@ -11,53 +11,7 @@ import PromotionScenario from '../api/promotionscenario/promotionscenario.model'
 import BasicPlanner from '../api/basicplanner/basicplanner.model';
 import DriverPlanner from '../api/driverplanner/driverplanner.model';
 import MasterPlan from '../api/masterplan/masterplan.model';
-Thing.find({}).remove()
-    .then(() => {
-        Thing.create({
-            name: 'Development Tools',
-            info: 'Integration with popular tools such as Bower, Grunt, Babel, Karma, ' +
-                'Mocha, JSHint, Node Inspector, Livereload, Protractor, Jade, ' +
-                'Stylus, Sass, and Less.'
-        }, {
-            name: 'Server and Client integration',
-            info: 'Built with a powerful and fun stack: MongoDB, Express, ' +
-                'AngularJS, and Node.'
-        }, {
-            name: 'Smart Build System',
-            info: 'Build system ignores `spec` files, allowing you to keep ' +
-                'tests alongside code. Automatic injection of scripts and ' +
-                'styles into your index.html'
-        }, {
-            name: 'Modular Structure',
-            info: 'Best practice client and server structures allow for more ' +
-                'code reusability and maximum scalability'
-        }, {
-            name: 'Optimized Build',
-            info: 'Build process packs up your templates as a single JavaScript ' +
-                'payload, minifies your scripts/css/images, and rewrites asset ' +
-                'names for caching.'
-        }, {
-            name: 'Deployment Ready',
-            info: 'Easily deploy your app to Heroku or Openshift with the heroku ' +
-                'and openshift subgenerators'
-        });
-    });
 
-MasterPlan.find({}).remove()
-    .then(() => {
-        MasterPlan.create({
-                name: 'MasterPlan 1',
-            },{
-                name: 'MasterPlan 2',
-            },{
-                name: 'MasterPlan 3',
-            },{
-                name: 'MasterPlan 4',
-            })
-            .then(() => {
-                console.log('finished populating MasterPlan Data');
-            });
-    });
 
 User.find({}).remove()
     .then(() => {
@@ -86,20 +40,20 @@ User.find({}).remove()
     });
 
 
-// Drug.find({}).remove()
-//     .then(() => {
-//         Drug.create({
-//             name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
-//         }, {
-//             name: "Adcirca, Pulmonary arterial hypertension"
-//         }, {
-//             name: "Belsomra, Insomnia"
-//         }, {
-//             name: "Corlanor, Chronic heart failure"
-//         }, {
-//             name: "Tekamlo, Hypertension"
-//         });
-//     });
+Drug.find({}).remove()
+    .then(() => {
+        Drug.create({
+            name: "Actemra, Polyarticular Juvenile Idiopathic Arthritis"
+        }, {
+            name: "Adcirca, Pulmonary arterial hypertension"
+        }, {
+            name: "Belsomra, Insomnia"
+        }, {
+            name: "Corlanor, Chronic heart failure"
+        }, {
+            name: "Tekamlo, Hypertension"
+        });
+    });
 // Grofers
 // Freshdirect
 // Localbanya

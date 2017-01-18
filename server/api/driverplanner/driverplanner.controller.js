@@ -114,3 +114,42 @@ export function bootstrap(req, res) {
         console.log('finished populating Driverplanner Planner');
     });
 }
+
+// Empty New Data
+exports.removeAll = function(req, res) {
+
+    Driverplanner.remove(function(err) {
+        if (err) {
+            handleError(res)
+        }
+    }).then(() => {
+        res.send('finished destroy Driverplanner Planner')
+
+    });
+}
+
+//FIND Scenario by Drug and Plan
+exports.findByDrugandPlan = function(req, res) {
+    console.log(req.params.drugID);
+    console.log(req.params.masterplanID);
+
+    Driverplanner.find({ drug: req.params.drugID, masterplan: req.params.masterplanID })
+        .populate('Driverplanner drug masterplan')
+        .exec()
+        .then(handleEntityNotFound(res))
+        .then(respondWithResult(res))
+        .catch(handleError(res));
+}
+
+//FIND plan and remove
+exports.findByplanAndRemove = function(req, res) {
+    Driverplanner.find({ masterplan: req.params.masterplanID })
+        .remove(function(err) {
+            if (err) {
+                handleError(res)
+            }
+        }).then(() => {
+
+            res.send("Finish find plan and Remove")
+        }).then(respondWithResult(res))
+}

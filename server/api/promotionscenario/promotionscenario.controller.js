@@ -11,7 +11,7 @@
 
 import _ from 'lodash';
 import Promotionscenario from './promotionscenario.model';
-
+var Drug = require('../drug/drug.model');
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
     return function(entity) {
@@ -101,6 +101,19 @@ export function destroy(req, res) {
         .catch(handleError(res));
 }
 
+// Empty New Data
+exports.removeAll = function(req, res) {
+
+    Promotionscenario.remove(function(err) {
+        if (err) {
+            handleError(res)
+        }
+    }).then(() => {
+         res.send("finished destroy Promotion Planner")
+    });
+}
+
+
 //POST new Data
 export function bootstrap(req, res) {
     Promotionscenario.remove(function(err) {
@@ -110,6 +123,29 @@ export function bootstrap(req, res) {
     }).then(() => {
         Promotionscenario.create(req.body)
     }).then(() => {
-        console.log('finished populating Promotionscenario Planner');
+        res.send("Finish Populate Promotionscenario Planner")
     });
+}
+
+//FIND Scenario by Drug and Plan
+exports.findByDrugandPlan = function(req, res) {
+
+    Promotionscenario.find({ drug: req.params.drugID, masterplan: req.params.masterplanID })
+        .populate('Promotionscenario drug masterplan')
+        .exec()
+        .then(handleEntityNotFound(res))
+        .then(respondWithResult(res))
+        .catch(handleError(res));
+}
+
+//FIND plan and remove
+exports.findByplanAndRemove = function(req, res) {
+    Promotionscenario.find({ masterplan: req.params.masterplanID })
+        .remove(function(err) {
+            if (err) {
+                handleError(res)
+            }
+        }).then(() => {
+            res.send("destroy Promotionscenario Planner")
+        }).then(respondWithResult(res))
 }

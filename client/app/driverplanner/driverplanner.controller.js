@@ -1,15 +1,17 @@
 'use strict';
 angular.module('clarosApp')
-    .controller('driverplannerCtrl', function($scope, $http, socket, $timeout, $window, $uibModal, Auth) {
+    .controller('driverplannerCtrl', function($scope, $http, socket, $timeout, $window, $uibModal, Auth, MasterPlan) {
         $('#arrangePosition').trigger('click');
+        // current plan
+        $scope.currentMasterPlan = MasterPlan.getCurrentMasterPlan();
         $scope.displayScenario = true;
+        $scope.displayMonthlyPlanning = false;
         $http({
             method: 'GET',
             url: '/api/drugs/'
         }).success(function(data) {
             // console.log(data)
             $scope.drugs = data;
-            console.log($scope.drugs)
             $scope.drugChosen = $scope.drugs[0];
             $timeout(function() {
                 $('#getAllDriverScenario').trigger('click');
@@ -17,23 +19,31 @@ angular.module('clarosApp')
         }).error(function(data) {
             console.log("Error retrieved drugs");
         });
+        //Get All Master Plan
+        $http({
+            method: 'GET',
+            url: '/api/masterplans/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.masterplans = data;
+        }).error(function(data) {
+            console.log("Error retrieved drugs");
+        });
+        $scope.getDriverScenario = function(masterplanID, drugid) {
+                var URLGet = '/api/driverplanners/' + drugid + "/" + masterplanID
 
-        $scope.getDriverScenario = function(drugid) {
                 $http({
                     method: 'GET',
-                    url: '/api/driverplanners/'
+                    url: URLGet
                 }).success(function(data) {
-                    $scope.allscenarios = [];
-                    for (var i in data) {
-                        var aEvent = data[i];
-                        if (aEvent.drug == drugid) {
-                            $scope.allscenarios.push(aEvent)
-                        }
-                    }
+                    $scope.allscenarios = data
+                    $scope.scenarioChosen = $scope.allscenarios[0];
                     socket.syncUpdates('driverplanner', $scope.allscenarios);
                     setTimeout(function() {
                         $('#arrangePosition').trigger('click');
-                        // $("#generateGraph").trigger('click')
+                        $("#addChartData").trigger('click')
+                        $("#dataChartAddRevenue").trigger('click')
+                        $('#generateChannelLineGraph').trigger('click');
                     }, 100);
                 }).error(function(data) {
                     console.log("Error retrieved driver planner ");
@@ -94,11 +104,11 @@ angular.module('clarosApp')
                     //     return value + ' (Very High)'
                     // }
                     switch (label) {
-                        case 'floor' : 
+                        case 'floor':
                             return value + '(Very Low)';
                         case 'ceil':
                             return value + '(Very Hight)';
-                        default :
+                        default:
                             return value;
                     }
                     // return value + 'lw'
@@ -246,34 +256,73 @@ angular.module('clarosApp')
         // Draw Bar Chart for Correlation
         $scope.dataChart = [];
         var driversplanner = ["KOL Activity", "Innovation", "Sales and Discount"];
-        $scope.addChartData = function(scenarios) {
-            // for (var i in driversplanner) {
-            //     var adrivers = scenarios[i];
-            //     var name = aScenario.name;
-            // }
+        $scope.addChartData = function(scenarios, ScenEnter) {
             $scope.dataChart = [];
-
-            for (var x in driversplanner) {
-                var driverName = driversplanner[x];
-                var ChartObject = {};
-                ChartObject['key'] = driverName
-                ChartObject['values'] = []
-                for (var i in scenarios) {
-                    var valueObject = {};
-
-                    valueObject['label'] = scenarios[i].name;
-                    valueObject['value'] = _.random(-0.5, 0.5);
-                    ChartObject.values.push(valueObject);
+            var CostandRevenue = ["Cost", "Revenue"];
+            var KOL = 0;
+            var Innovation = 0;
+            var Sales = 0;
+            var ChartObject = {};
+            for (var i in CostandRevenue) {
+                var aName = CostandRevenue[i];
+                if (aName == "Cost") {
+                    KOL = ScenEnter.KOLActivity.cost;
+                    Innovation = ScenEnter.Innovation.cost;
+                    Sales = ScenEnter.Sales.cost;
+                    ChartObject = {
+                        "key": aName,
+                        "values": [{
+                            "label": "KOL Activity",
+                            "value": KOL
+                        }, {
+                            "label": "Innovation",
+                            "value": Innovation
+                        }, {
+                            "label": "Sales and Discount",
+                            "value": Sales
+                        }]
+                    }
+                    $scope.dataChart.push(ChartObject)
+                } else {
+                    KOL = ScenEnter.KOLActivity.expectRevenue;
+                    Innovation = ScenEnter.Innovation.expectRevenue;
+                    Sales = ScenEnter.Sales.expectRevenue;
+                    ChartObject = {
+                        "key": aName,
+                        "values": [{
+                            "label": "KOL Activity",
+                            "value": KOL
+                        }, {
+                            "label": "Innovation",
+                            "value": Innovation
+                        }, {
+                            "label": "Sales and Discount",
+                            "value": Sales
+                        }]
+                    }
+                    $scope.dataChart.push(ChartObject)
                 }
-                $scope.dataChart.push(ChartObject);
+
             }
-
+            $scope.scrollToScenario(ScenEnter);
         }
+        $scope.scrollToScenario = function(scenario) {
+                var portion = $scope.allscenarios.length;
+                for (var i in $scope.allscenarios) {
+                    if (scenario._id == $scope.allscenarios[i]._id) {
+                        // var height = 4*i;
 
-        // init dashboard
+                        var heightofVertical = $('.vertical_scroll_driver').prop("scrollHeight") / portion;
+                        var heigthtoScroll = i * heightofVertical;
+                        $(".vertical_scroll_driver").animate({ scrollTop: heigthtoScroll }, 100);
+                    }
+                }
+            }
+            // init dashboard
+        var colors = ["#008061", "#b41f1f"];
         $scope.options = {
             chart: {
-                type: 'multiBarHorizontalChart',
+                type: 'multiBarChart',
                 "height": 150,
                 margin: {
                     top: 0,
@@ -298,12 +347,13 @@ angular.module('clarosApp')
                     // axisLabelDistance: 5
                 },
                 yAxis: {
-                    axisLabel: 'Correlation',
+                    axisLabel: 'Cost vs Revenue',
                     axisLabelDistance: -5
                 },
                 showControls: false,
-                "stacked": true,
-                yDomain: [-1, 1],
+                color: function(d, i) {
+                    return (d.data && d.data.color) || colors[i % colors.length]
+                }
 
             }
         };
@@ -315,29 +365,55 @@ angular.module('clarosApp')
             for (var i in scenarios) {
                 var aScenario = scenarios[i];
                 var name = aScenario.name;
-                var BaseCase = 800
-                var FoodDrink = _.random(400, 1000);
-                var HomeCare = _.random(400, 1000);
-                var PersonalCare = _.random(400, 1000);
+                // var All = aScenario.All;
+                // var Government = aScenario.Government;
+                // var Pharmacy = aScenario.Pharmacy;
+                // var Hospital = aScenario.Hospital;
                 // var CompetitorPromotion = _.random(400, 1000);
+                var ChartObject = {};
+                ChartObject.key = name;
+                var values = [];
+                for (var x in aScenario.ExpectedRev) {
+                    var aChannelRevenue = aScenario.ExpectedRev[x];
+                    var aValueObject = {};
+                    if (aChannelRevenue.channel == "All") {
+                        aValueObject.label = "All";
+                        aValueObject.value = aChannelRevenue.revenue;
+                    }
 
+                    if (aChannelRevenue.channel == "Government") {
+                        aValueObject.label = "Government";
+                        aValueObject.value = aChannelRevenue.revenue;
+                    }
 
-                var ChartObject = {
-                    "key": name,
-                    "values": [{
-                        "label": "All",
-                        "value": BaseCase
-                    }, {
-                        "label": "Government",
-                        "value": FoodDrink
-                    }, {
-                        "label": "Pharmacy",
-                        "value": HomeCare
-                    }, {
-                        "label": "Hospital",
-                        "value": PersonalCare
-                    }]
+                    if (aChannelRevenue.channel == "Pharmacy") {
+                        aValueObject.label = "Pharmacy";
+                        aValueObject.value = aChannelRevenue.revenue;
+                    }
+                    if (aChannelRevenue.channel == "Hospital") {
+                        aValueObject.label = "Hospital";
+                        aValueObject.value = aChannelRevenue.revenue;
+                    }
+                    values.push(aValueObject);
                 }
+                ChartObject.values = values;
+
+                // var ChartObject = {
+                //     "key": name,
+                //     "values": [{
+                //         "label": "All",
+                //         "value": All
+                //     }, {
+                //         "label": "Government",
+                //         "value": Government
+                //     }, {
+                //         "label": "Pharmacy",
+                //         "value": Pharmacy
+                //     }, {
+                //         "label": "Hospital",
+                //         "value": Hospital
+                //     }]
+                // }
                 $scope.dataChartRevenue.push(ChartObject)
             }
         }
@@ -365,29 +441,19 @@ angular.module('clarosApp')
                 },
                 duration: 500,
                 xAxis: {
-                    axisLabel: 'Category',
                     axisLabelDistance: -10
                 },
                 yAxis: {
-                    axisLabel: 'Revenue',
+                    axisLabel: "Revenue ('000)",
                     axisLabelDistance: -5
-                }
+                },
+                showControls: false
 
             }
         };
 
 
         ///========================
-        // $scope.DisplayMonthlyPlanning = function() {
-        //     $scope.displayScenario = false;
-        //     $scope.displayMonthlyPlanning = true;
-        //     $scope.countmonthlybudget();
-        //     // console.log($('.box-driver-linechart').height());
-        //     setTimeout(function() { $("#countmonthlybudget").click() }, 200);
-        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#foodanddrink') }, 200);
-        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#personalcare') }, 200);
-        //     setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.2, '#homecare') }, 200);
-        // }
         $scope.filteritem = [
             { name: "Gridster Item", sizeX: 16, sizeY: 1, row: 0, col: 0, api: {} },
         ]
@@ -448,27 +514,9 @@ angular.module('clarosApp')
 
 
 
-        // ------------------------Get the Scenario event-------------------------------------
-        // $scope.allscenarios = [];
-        $http({
-            method: 'GET',
-            url: '/api/driverplanners/'
-        }).success(function(data) {
-            $scope.allscenarios = data;
-            socket.syncUpdates('driverplanner', $scope.allscenarios);
-            // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
-            // setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
-
-        }).error(function(data) {
-            console.log("Error retrieved scenario event");
-        });
-        // ------------------------Get the Scenario  event-------------------------------------
-
-
-
         // Gridster for Graph
         $scope.standardItems = [
-            { name: "Driver Correlation", sizeX: 1, sizeY: 1, row: 0, col: 0, api: {} },
+            { name: "Cost and Revenue Comparison", sizeX: 1, sizeY: 1, row: 0, col: 0, api: {} },
             { name: "Expected Revenue", sizeX: 1, sizeY: 1, row: 0, col: 1, api: {} },
         ];
 
@@ -517,48 +565,121 @@ angular.module('clarosApp')
 
         // Adding new Scenario 
         $scope.addWidget = function() {
+            var anOptimisationDriver = {};
+            var trackingNumber = $scope.allscenarios.length + 1;
+            var KOLactivitiy = ["KOL Events", "KOL Sponsorship", "Detailing Coverage"];
+            var Innovation = ["Innovation Impact", "Innovation Duration"];
+            var SalesandDiscount = ["Sales Coverage", "Average Discount", "Sales Frequency"];
+            var Channels = ["All", "Government", "Hospital", "Pharmacy"];
+
+            var drugID = $scope.allscenarios[0].drug
+            var planID = $scope.currentMasterPlan._id;
             var lengthOfScenario = $scope.allscenarios.length + 1;
             var nameofscenario = "Scenario " + lengthOfScenario;
+            // Create new Optimisational 
+            anOptimisationDriver.masterplan = planID;
+            anOptimisationDriver.name = "Scenario " + trackingNumber;
+            anOptimisationDriver.drug = drugID;
+            anOptimisationDriver.All = _.random(100, 1000);
+            anOptimisationDriver.Government = _.random(100, 1000);
+            anOptimisationDriver.Pharmacy = _.random(100, 1000);
+            anOptimisationDriver.Hospital = _.random(100, 1000);
+            var KOLactivitiyObject = {};
+            KOLactivitiyObject.cost = _.random(100, 500);
+            KOLactivitiyObject.expectRevenue = _.random(100, 500);
+            var InnovationObject = {};
+            InnovationObject.cost = _.random(100, 500);
+            InnovationObject.expectRevenue = _.random(100, 500);
+            var SaleObject = {};
+            SaleObject.cost = _.random(100, 500);
+            SaleObject.expectRevenue = _.random(100, 500);
+            var KOLarray = [];
+            var InnovationArray = [];
+            var SalesArray = [];
 
-            $http.post('/api/driverplanners', {
-                name: nameofscenario,
-                BrandPromotion: Math.floor(Math.random() * 100),
-                InstoreMarketing: Math.floor(Math.random() * 100),
-                InstorePromotion: Math.floor(Math.random() * 100),
-                CompetitorPromotion: Math.floor(Math.random() * 100),
-                KOLActivity: [{
-                    ActivityName: "KOL Events",
-                    Impact: Math.floor(Math.random() * 100)
-                }, {
-                    ActivityName: "KOL Sponsorship",
-                    Impact: Math.floor(Math.random() * 100)
-                }, {
-                    ActivityName: "KOL Detailing",
-                    Impact: Math.floor(Math.random() * 100)
-                }],
-                Innovation: [{
-                    ActivityName: "Innovation Impact",
-                    Impact: Math.floor(Math.random() * 100)
-                }, {
-                    ActivityName: "Innovation Duration",
-                    Impact: Math.floor(Math.random() * 100)
-                }],
-                SalesandDiscount: [{
-                    ActivityName: "Sales Coverage",
-                    Impact: Math.floor(Math.random() * 100)
-                }, {
-                    ActivityName: "Sales Frequency",
-                    Impact: Math.floor(Math.random() * 20)
-                }, {
-                    ActivityName: "Discount",
-                    Impact: Math.floor(Math.random() * 100)
-                }]
+            //Adding KOL Activitiy
+            for (var x in KOLactivitiy) {
+                var KOLevent = {};
+                var KOLactivityName = KOLactivitiy[x];
+                KOLevent.ActivityName = KOLactivityName;
+                if (KOLactivityName == "KOL Events") {
+                    KOLevent.Impact = _.random(1, 1000);
+                    KOLarray.push(KOLevent);
+                } else if (KOLactivityName == "KOL Sponsorship") {
+                    KOLevent.Impact = _.random(100, 1000);
+                    KOLarray.push(KOLevent);
+                } else {
+                    KOLevent.Impact = _.random(0, 100);
+                    KOLarray.push(KOLevent);
+                }
+            }
+            KOLactivitiyObject.name = "KOL Activity"
+            KOLactivitiyObject.activities = KOLarray;
+            anOptimisationDriver.KOLActivity = KOLactivitiyObject;
 
+
+            //Adding Innovation 
+            for (var y in Innovation) {
+                var InnovationObj = {};
+                var InnovationName = Innovation[y];
+                InnovationObj.ActivityName = InnovationName;
+                if (InnovationName == "Innovation Impact") {
+                    InnovationObj.Impact = _.random(1, 5)
+                    InnovationArray.push(InnovationObj);
+                } else {
+                    InnovationObj.Impact = _.random(0, 36)
+                    InnovationArray.push(InnovationObj);
+                }
+            }
+
+            InnovationObject.name = "Innovation"
+            InnovationObject.activities = InnovationArray;
+            anOptimisationDriver.Innovation = InnovationObject;
+
+            //Adding SalesandDiscount
+            for (var z in SalesandDiscount) {
+                var SalesandDiscountObj = {};
+                var SaleName = SalesandDiscount[z];
+                SalesandDiscountObj.ActivityName = SaleName;
+                if (SaleName == "Sales Coverage") {
+                    SalesandDiscountObj.Impact = _.random(0, 100)
+                    SalesArray.push(SalesandDiscountObj);
+                } else if (SaleName == "Average Discount") {
+                    SalesandDiscountObj.Impact = _.random(0, 100)
+                    SalesArray.push(SalesandDiscountObj);
+                } else {
+                    SalesandDiscountObj.Impact = _.random(0, 10)
+                    SalesArray.push(SalesandDiscountObj);
+                }
+            }
+
+            SaleObject.name = "Sales And Discount"
+            SaleObject.activities = SalesArray;
+            anOptimisationDriver.Sales = SaleObject;
+            var expectedRevenueArray = [];
+            for (var k in Channels) {
+
+                var expectRevenueObject = {}
+                var aChanel = Channels[k];
+                expectRevenueObject.channel = aChanel;
+                if (k == 0) {
+                    expectRevenueObject.revenue = _.random(900, 1000)
+                } else {
+                    expectRevenueObject.revenue = _.random(200, 300)
+                }
+                expectedRevenueArray.push(expectRevenueObject)
+
+            }
+            anOptimisationDriver.ExpectedRev = expectedRevenueArray;
+            $http({
+                method: "POST",
+                url: 'api/driverplanners/',
+                data: anOptimisationDriver
             }).success(function() {
-                $(".vertical_scroll").animate({ scrollTop: $('.vertical_scroll').prop("scrollHeight") }, 100);
-                $(".vertical_scroll").animate({ scrollTop: $('.vertical_scroll_driverCPG').prop("scrollHeight") }, 100);
-
+                $(".vertical_scroll_driver").animate({ scrollTop: $('.vertical_scroll_driver').prop("scrollHeight") }, 100);
+                // $(".vertical_scroll").animate({ scrollTop: $('.vertical_scroll_driverCPG').prop("scrollHeight") }, 100);
                 // setTimeout(function() { $('#analyse').trigger('click'); }, 100);
+                $scope.scenarioChosen = $scope.allscenarios[$scope.allscenarios.length - 1]
                 setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 100);
                 setTimeout(function() { $('#dataChartAddRevenue').trigger('click'); }, 100);
 
@@ -575,6 +696,8 @@ angular.module('clarosApp')
                 url: '/api/driverplanners/' + scenario._id
             }).success(function() {
                 console.log("Removed")
+                $scope.scenarioChosen = $scope.allscenarios[0];
+                console.log($scope.allscenarios);
                 setTimeout(function() { $('#dataChartAdd').trigger('click'); }, 50);
                 setTimeout(function() { $('#dataChartAddRevenue').trigger('click'); }, 100);
 
@@ -585,6 +708,23 @@ angular.module('clarosApp')
         };
 
         $scope.updateModel = function(scenario) {
+            console.log(scenario);
+            var channelArray = scenario.ExpectedRev;
+            for (var i in channelArray) {
+                var aChanel = channelArray[i]
+                aChanel.revenue = aChanel.revenue * (1 + _.random(-.3, .4));
+            }
+            var KOLActivity = scenario.KOLActivity.cost;
+            // console.log(KOLActivity);
+            scenario.KOLActivity.cost = scenario.KOLActivity.cost * (1 + _.random(-.3, .4));
+            scenario.KOLActivity.expectRevenue = scenario.KOLActivity.expectRevenue * (1 + _.random(-.3, .4));
+
+            scenario.Innovation.cost = scenario.Innovation.cost * (1 + _.random(-.3, .4));
+            scenario.Innovation.expectRevenue = scenario.Innovation.expectRevenue * (1 + _.random(-.3, .4));
+
+            scenario.Sales.cost = scenario.Sales.cost * (1 + _.random(-.3, .4));
+            scenario.Sales.expectRevenue = scenario.Sales.expectRevenue * (1 + _.random(-.3, .4));
+            $scope.addChartData($scope.allscenarios, scenario)
             $http({
                 method: 'PUT',
                 url: '/api/driverplanners/' + scenario._id,
@@ -615,26 +755,39 @@ angular.module('clarosApp')
 
         };
 
-        $scope.$on("slideEnded", function() {
-            // for(
-            // console.log($scope.scenario));
-            setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
+        // $scope.$on("slideEnded", function() {
+        //     // for(
+        //     // console.log($scope.scenario));
+        //     setTimeout(function() { $('#addChartData').trigger('click'); }, 100);
 
-        });
+        // });
+        //Display Monthly DisplayMonthlyPlanning
+        $scope.DisplayMonthlyPlanning = function() {
+            $scope.displayScenario = false;
+            $scope.displayMonthlyPlanning = true;
+        }
 
+        $scope.DisplayScenario = function() {
+            $scope.displayScenario = true;
+            $scope.displayMonthlyPlanning = false;
+        }
+
+
+        //DisplayMonthlyPlanning
         $scope.monthlyBudget = [];
-        $scope.drivers = ["Online Investment", "Share of Media", "Promotional Suppor", "Pricing Medium vs Competition"]
-        $scope.months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        $scope.drivers = ["Online Investment", "Share of Media", "Promotional Suppor", "Pricing Medium vs Competition"];
+        $scope.months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         $scope.countmonthlybudget = function() {
+            $scope.displayScenario = false;
+            $scope.displayMonthlyPlanning = true;
             $scope.monthlyBudget = [];
             for (var i in $scope.allscenarios) {
-
                 var aScenario = $scope.allscenarios[i];
-
                 var aScenarioName = aScenario.name;
                 var monthlyObject = {};
                 monthlyObject.name = aScenarioName;
                 monthlyObject["monthlybudget"] = [];
+                console.log(monthlyObject);
                 for (var x in $scope.drivers) {
                     var aDriver = $scope.drivers[x];
                     var newObject = {};
@@ -645,22 +798,18 @@ angular.module('clarosApp')
                     for (var y in $scope.months) {
                         var aMonth = $scope.months[y];
                         newObject.month.push(_.random(100, 500));
-
-                        // console.log($scope.monthlyBudget);
                     }
                     monthlyObject['monthlybudget'].push(newObject);
-
                 }
                 $scope.monthlyBudget.push(monthlyObject);
             }
-            // console.log($scope.monthlyBudget);
 
         }
 
-        setTimeout(function() { $scope.countmonthlybudget() }, 100);
+        // setTimeout(function() { $scope.countmonthlybudget() }, 100);
 
         $scope.gridstermonthlyBudget = {
-            margins: [50, 50],
+            margins: [10, 10],
             // columns: 1,
             draggable: {
                 handle: 'h3'
@@ -678,7 +827,7 @@ angular.module('clarosApp')
             },
 
             // colWidth: 400,
-            rowHeight: 250
+            rowHeight: 300
         };
 
         //Gridster Items for Line Chart
@@ -691,14 +840,15 @@ angular.module('clarosApp')
             // { "name": "Cif Cream Cleaner", sizeX: 1, sizeY: 1, row: 0, col: 1, api: {}},
             // { "name": "Aviance Beauty Solutions", sizeX: 1, sizeY: 1, row: 0, col: 1, api: {}},
             // { "name": "Axe deodorant and aftershaving lotion and soap",sizeX: 1, sizeY: 1, row: 0, col: 1, api: {} } 
-            { name: "Food And Drink", sizeX: 1, sizeY: 2, row: 0, col: 0, api: {} },
-            { name: "Home Care", sizeX: 1, sizeY: 2, row: 0, col: 1, api: {} },
-            { name: "Personal Care", sizeX: 1, sizeY: 2, row: 0, col: 2, api: {} }
+            { name: "All", sizeX: 2, sizeY: 2, row: 0, col: 0, api: {} },
+            { name: "Factory 1", sizeX: 2, sizeY: 2, row: 0, col: 1, api: {} },
+            { name: "Factory 2", sizeX: 2, sizeY: 2, row: 1, col: 1, api: {} },
+            { name: "Factory 3", sizeX: 2, sizeY: 2, row: 1, col: 2, api: {} }
 
         ];
         $scope.gridsterLineChart = {
             margins: [20, 20],
-            // columns: 3,
+            columns: 2,
             draggable: {
                 handle: 'h3'
             },
@@ -719,11 +869,12 @@ angular.module('clarosApp')
         };
 
         // =============================Draw Sell-in==========================================================
-        var time = ["x", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var time = ["x", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
         // $scope.SellinData = [];
         // $scope.SellinData.unshift(time);
         $scope.drawLineGraph = function(scenariosdata, height, width, id) {
             var dataForSellin = [];
+            // console.log(scenariosdata);
             dataForSellin.unshift(time);
             for (var i in scenariosdata) {
                 var anObject = [];
@@ -732,10 +883,18 @@ angular.module('clarosApp')
                 anObject.push(nameofscenario);
                 // dataForSellin.push(nameofscenario)
                 for (var x = 0; x < 12; x++) {
-                    var random = _.random(100, 500);
-                    anObject.push(random);
+                    if (x < 1) {
+                        var random = _.random(100, 500);
+                        anObject.push(random);
+                    } else {
+                        var randomNumber = parseInt(anObject[anObject.length - 1]);
+                        var numToadd = randomNumber * (1 + (_.random(-0.2, .2)))
+                        anObject.push(numToadd);
+                    }
+
 
                 }
+                console.log(anObject);
                 dataForSellin.push(anObject)
             }
 
@@ -775,22 +934,56 @@ angular.module('clarosApp')
                 grid: {
                     x: {
                         lines: [
-                            { value: "Jul", text: 'Past/Future Line' }
+                            { value: "7", text: 'Past/Future Line' }
                         ]
                     }
-                }
+                },
+                regions: [
+                    { axis: 'x', end: 6, class: 'regionX' },
+                ]
             });
         };
         // =============================Draw Sell-in==========================================================
-        $scope.myUpdateHandler = function(index, newValue) {
-                console.log(index)
-                console.log(newValue)
-                setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#foodanddrink') }, 100);
-                setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#personalcare') }, 100);
-                setTimeout(function() { $scope.drawLineGraph($scope.allscenarios, $('.box-driver-linechart').height() / 1.3, $('.box-driver-linechart').width() / 1.1, '#homecare') }, 100);
+        $scope.monthbudgetRetrieve = null;
+        $scope.indexRetrieve = null;
+        $scope.updateMonthly = function(eventChosen, monthbudget, index, newValue) {
 
+
+            $scope.monthbudgetRetrieve = monthbudget;
+            $scope.indexRetrieve = index;
+
+
+        }
+
+        $scope.myValidator = function(index, newValue, eventChosen) {
+            // console.log(event)
+            console.log($scope.monthbudgetRetrieve)
+            var allMonthly = eventChosen.monthlyplan.monthlybudget;
+            console.log(allMonthly);
+            for (var m in allMonthly) {
+                var aMonthlyDriver = allMonthly[m];
+                if (aMonthlyDriver.driver == $scope.monthbudgetRetrieve.driver) {
+                    // console.log(aMonthlyDriver);
+                    aMonthlyDriver.month[$scope.indexRetrieve] = newValue;
+                    eventChosen.monthlyplan.monthlybudget[m] = aMonthlyDriver
+                    $scope.updateModel(eventChosen);
+
+                }
             }
-            // Define event handler
+            $scope.generateChannelLineGraph($scope.allscenarios);
+        }
+
+        $scope.generateChannelLineGraph = function(allscenarios) {
+
+            $scope.drawLineGraph(allscenarios, 230, 1000, '#all')
+            $scope.drawLineGraph(allscenarios, 230, 1000, '#pharmacy')
+            $scope.drawLineGraph(allscenarios, 230, 1000, '#hospital')
+            $scope.drawLineGraph(allscenarios, 230, 1000, '#government')
+        }
+
+
+
+        // Define event handler
         $scope.events = {
             resize: function(e, scope) {
                 $timeout(function() {
@@ -816,6 +1009,7 @@ angular.module('clarosApp')
             // $window.location.reload();
             $timeout(function() { $scope.resizeIpad(); }, 100)
             $timeout(function() { $('#arrangePosition').trigger('click'); }, 200);
+
         })
         $scope.$on('gridster-mobile-changed', function(gridster) {
             $scope.resizeIpad();

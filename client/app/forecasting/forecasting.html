@@ -10,16 +10,16 @@
                         <label for="drug" style="font-size:12px"> Drug </label>
                     </div>
                     <div class="col-md-8 pull-right" >
-                        <select class="form-control" style="font-size:12px" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen.id" ng-change="DisplayDashboard(channelChosen,drugChosen)">
+                        <select class="form-control" style="font-size:12px" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen.id" ng-change="DisplayDashboard(futureChosen,historicalChosen,channelChosen,drugChosen)">
                         </select>
                     </div>
                 </div>
                 <div class="form-group col-xs-4 col-sm-2" style="margin-top:0px">
                     <div class="col-md-2">
-                        <label for="channel" style="font-size:12px"> Channel </label>
+                        <label for="channel" style="font-size:12px"> Factory </label>
                     </div>
                     <div class="col-md-8 pull-right">
-                        <select class="form-control" style="font-size:12px" ng-model="channelChosen" ng-options="channelChosen.name for channelChosen in channels track by channelChosen.id" ng-change="DisplayDashboard(channelChosen,drugChosen)">
+                        <select class="form-control" style="font-size:12px" ng-model="channelChosen" ng-options="channelChosen.name for channelChosen in channels track by channelChosen.id" ng-change="DisplayDashboard(futureChosen,historicalChosen,channelChosen,drugChosen)">
                         </select>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                         <label class="pull-left" for="historical" style="font-size:12px"> Historical </label>
                     </div>
                     <div class="col-md-8 pull-right">
-                        <select class="form-control" style="font-size:12px" ng-model="historicalChosen" ng-options="historicalChosen.name for historicalChosen in historical track by historicalChosen.id">
+                        <select class="form-control" style="font-size:12px" ng-model="historicalChosen" ng-options="historicalChosen.name for historicalChosen in historical track by historicalChosen.id" ng-change="DisplayDashboard(futureChosen,historicalChosen,channelChosen,drugChosen)">
                         </select>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                         <label for="future" style="font-size:12px"> Future </label>
                     </div>
                     <div class="col-md-8 pull-right">
-                        <select class="form-control" style="font-size:12px" ng-model="futureChosen" ng-options="futureChosen.name for futureChosen in future track by futureChosen.id">
+                        <select class="form-control" style="font-size:12px" ng-model="futureChosen" ng-options="futureChosen.name for futureChosen in future track by futureChosen.id" ng-change="DisplayDashboard(futureChosen,historicalChosen,channelChosen,drugChosen)">
                         </select>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
         <div class="col-xs-12 col-sm-6 .col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Growth/Size Quadrant</h3>
+                    <h3 class="panel-title">Inventory</h3>
                 </div>
                 <div class="panel-body">
                     <div id="chart"></div>
@@ -61,7 +61,7 @@
         <div class="col-xs-12 col-sm-6 .col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Driver Correlation</h3>
+                    <h3 class="panel-title">Inventory Break up</h3>
                 </div>
                 <div class="panel-body">
                     <div id="example"></div>
@@ -73,7 +73,7 @@
         <div class="col-xs-12 col-sm-6 .col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Sell-in Forecasting</h3>
+                    <h3 class="panel-title">Production Forecasting</h3>
                 </div>
                 <div class="panel-body">
                     <div id="sell-in"></div>
@@ -102,6 +102,6 @@
         </div>
     </div> -->
     <input type="hidden" id="drawWaterChart" ng-click="drawWaterFall(data,200,300)">
-    <input type="hidden" id="drawDashboard" ng-click="DisplayDashboard(channelChosen,drugChosen)">
+    <input type="hidden" id="drawDashboard" ng-click="DisplayDashboard(futureChosen,historicalChosen,channelChosen,drugChosen)">
     <input type="hidden" id="changeDrug" ng-click="changeDrug(drugChosen)">
 </div>

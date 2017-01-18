@@ -21,9 +21,9 @@ class LoginController {
         .then(() => {
           // Logged in, redirect to home
           if(this.Auth.isAdmin()){
-            this.$state.go('basicplanner');
+            this.$state.go('home');
           }else{
-            this.$state.go('forecasting');
+            this.$state.go('home');
           }
           
         })

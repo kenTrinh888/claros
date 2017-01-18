@@ -1,0 +1,52 @@
+.img-insight {
+    width: 50%;
+    height: 50%;
+    display: block;
+    margin-top: 50px;
+    margin-left: 40%;
+    margin-right: auto
+}
+
+.img-plan {
+    width: 50%;
+    height: 50%;
+    display: block;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: 40%
+}
+
+
+.insightbutton {
+    width: 50%;
+    height: 50%;
+    display: block;
+    margin-top: 20px;
+    margin-left: 40%;
+    margin-right: auto;
+    background-color: #9DE0A8;
+    border-color: #9DE0A8;
+}
+
+.planingbutton {
+    width: 50%;
+    height: 50%;
+    display: block;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: 40%;
+    background-color: #83AF9B;
+    border-color: #83AF9B;
+}
+
+.insightbutton:hover {
+	background-color:#a7e09d;
+	border-color:#a7e09d;
+	box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.33);
+}
+
+.planingbutton:hover {
+	box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.33);
+	background-color:#92af83;
+	border-color:#92af83;
+}

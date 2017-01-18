@@ -1,10 +1,12 @@
 'use strict';
 
 import mongoose from 'mongoose';
+var Schema = mongoose.Schema;
 
 var DriverplannerSchema = new mongoose.Schema({
     name: String,
-    drug: { type: mongoose.Schema.Types.ObjectId, ref: "drug" },
+    drug: { type: Schema.ObjectId, ref: "Drug" },
+    masterplan: { type: Schema.ObjectId, ref: "Masterplan" },
     ExpectedRev: [{
         channel: String,
         revenue: Number
@@ -37,6 +39,11 @@ var DriverplannerSchema = new mongoose.Schema({
             ActivityName: String,
             Impact: Number,
         }]
+    },
+    monthlyplan : {
+        monthlybudget:[{driver:String,month:[]}],
+        sizeX: Number,
+        sizeY: Number
     }
 });
 

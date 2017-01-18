@@ -3,11 +3,21 @@
 //     broadcast();
 // });
 angular.module('clarosApp')
-    .controller('promotionController', function($http, $scope, socket, $timeout, $window, $uibModal, Auth) {
+    .controller('promotionController', function($http, $scope, socket, $timeout, $window, $uibModal, Auth,MasterPlan) {
         Auth.getCurrentUser(function(data) {
             $scope.user = data;
         })
+        $scope.currentMasterPlan = MasterPlan.getCurrentMasterPlan();
+        $scope.UpdateNumberofMonth = function (currenplan){
 
+            $http({
+                method: "PUT",
+                url: "api/masterplans/" + currenplan._id,
+                data: currenplan
+            }).success(function(){
+                console.log("Update Master Plan Number of Month SUccessful")
+            })
+        }
         $scope.totalBudget = {
             value: _.random(500000, 1000000),
             options: {
@@ -39,20 +49,25 @@ angular.module('clarosApp')
         }).error(function(data) {
             console.log("Error retrieved drugs");
         });
+        //Get Master Plan
+        $http({
+            method: 'GET',
+            url: '/api/masterplans/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.masterplans = data;
+        }).error(function(data) {
+            console.log("Error retrieved drugs");
+        });
 
-        $scope.getPromotionscenario = function(drugid) {
-                // console.log(drugid)
+        $scope.getPromotionscenario = function(masterplanID,drugid) {
+                var URLGet = '/api/promotionscenarios/' + drugid + "/" + masterplanID
                 $http({
                     method: 'GET',
-                    url: '/api/promotionscenarios/'
+                    url: URLGet
                 }).success(function(data) {
-                    $scope.allscenarios = [];
-                    for (var i in data) {
-                        var aScenario = data[i];
-                        if (aScenario.drug == drugid) {
-                            $scope.allscenarios.push(aScenario)
-                        }
-                    }
+                    $scope.allscenarios = data
+                   
                     setTimeout(function() {
                         $('#arrangePosition').trigger('click');
                         $('#PharmadataChartAdd').trigger('click');
@@ -62,7 +77,7 @@ angular.module('clarosApp')
 
 
                 }).error(function(data) {
-                    console.log("Error retrieved food order");
+                    console.log("Error retrieved promotionscenario");
                 });
 
             }
@@ -310,10 +325,10 @@ angular.module('clarosApp')
                     axisLabelDistance: -10
                 },
                 yAxis: {
-                    axisLabel: 'Revenue',
+                    axisLabel: "Revenue ('000)",
                     axisLabelDistance: -5
-                }
-
+                },
+                showControls: false
             }
         };
         // $scope.updateChart = function (){
@@ -430,12 +445,13 @@ angular.module('clarosApp')
             var Government = _.random(100, 300);
             var Hospital = _.random(100, 300);
             var Pharmacy = _.random(100, 300);
-            var promotionactivities = ["Bundle", "Discount", "Freebie"]
+            var promotionactivities = ["Bundle", "Freebie", "Discount"]
 
 
             $http.post('/api/promotionscenarios', {
                 name: nameofscenario,
                 drug: drug,
+                masterplan : $scope.currentMasterPlan._id,
                 promotionactivity: promotionactivities[_.random(0, 2)],
                 interval: _.random(0, 10),
                 discount: _.random(0, 100),
@@ -460,12 +476,28 @@ angular.module('clarosApp')
 
         }
         $scope.updateModel = function(scenario) {
-            console.log(scenario)
-            scenario.All = _.random(500, 700);
-            scenario.Hospital = _.random(100, 300);
-            scenario.Pharmacy = _.random(100, 300);
-            scenario.Government = _.random(100, 300);
-
+            // console.log(scenario)
+            // scenario.All = _.random(500, 700);
+            // scenario.Hospital = _.random(100, 300);
+            // scenario.Pharmacy = _.random(100, 300);
+            // scenario.Government = _.random(100, 300);
+            var ScenarioDiscount = scenario.discount;
+            if (ScenarioDiscount < 30) {
+                scenario.All = scenario.All * 1.15;
+                scenario.Hospital = scenario.Hospital * 1.15;
+                scenario.Pharmacy = scenario.Pharmacy * 1.15;
+                scenario.Government = scenario.Government * 1.15;
+            } else if (ScenarioDiscount < 40) {
+                scenario.All = scenario.All * 1.05;
+                scenario.Hospital = scenario.Hospital * 1.05;
+                scenario.Pharmacy = scenario.Pharmacy * 1.05;
+                scenario.Government = scenario.Government * 1.05;
+            } else {
+                scenario.All = scenario.All * (1 - 0.05);
+                scenario.Hospital = scenario.Hospital * (1 - 0.05);
+                scenario.Pharmacy = scenario.Pharmacy * (1 - 0.05);
+                scenario.Government = scenario.Government * (1 - 0.05);
+            }
             $http({
                 method: 'PUT',
                 url: '/api/promotionscenarios/' + scenario._id,

@@ -4,17 +4,19 @@ class NavbarController {
   //end-non-standard
 
   //start-non-standard
-  constructor(Auth,MasterPlan) {
+  constructor($scope,Auth,MasterPlan, $location) {
+    this.masterplanVisible = MasterPlan.getVisibleProperty();
     this.isLoggedIn = Auth.isLoggedIn;
     this.isAdmin = Auth.isAdmin;
     this.getCurrentUser = Auth.getCurrentUser;
-   	Auth.getCurrentUser(function(data){
-   		// console.log(data)
-   });
-
-    // this.masterplanVisible = MasterPlan.getMasterPlanVisble();
-
-    this.masterplanVisible = MasterPlan.turnVisible();
+    // $scope.visibleTurn = function (){
+    //   MasterPlan.turnVisiblePlan();
+    // }
+    // console.log(this.masterplanVis
+      $scope.logout = function(){
+        console.log("logout")
+         $location.path('/');
+      }
   }
 
 }

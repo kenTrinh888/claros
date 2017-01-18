@@ -1,11 +1,11 @@
 'use strict';
 
 import mongoose from 'mongoose';
-
+var Schema = mongoose.Schema;
 var PromotionscenarioSchema = new mongoose.Schema({
     name: String,
-    drug: { type: mongoose.Schema.Types.ObjectId, ref: "drug" },
-    masterplan: { type: mongoose.Schema.Types.ObjectId, ref: "masterplan" },
+    drug: { type: Schema.ObjectId, ref: "Drug" },
+    masterplan: { type: Schema.ObjectId, ref: "Masterplan" },
     promotionactivity: String,
     interval: Number,
     frequency: Number,

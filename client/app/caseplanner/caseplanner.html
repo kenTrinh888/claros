@@ -6,14 +6,23 @@
             </div>
             <div class="form-group col-md-3" style="margin-top:7px;">
                 <div class="col-md-3">
-                    <label for="drug"> Drug </label>
+                    <label for="drug"> Plan </label>
                 </div>
                 <div class="col-md-8">
-                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getBasicEvent(drugChosen._id)">
+                    <select class="form-control" ng-model="currentMasterPlan" ng-options="currentMasterPlan.name for currentMasterPlan in masterplans track by currentMasterPlan._id" ng-change="getBasicEvent(currentMasterPlan._id,drugChosen._id)">
                     </select>
                 </div>
             </div>
             <div class="form-group col-md-3" style="margin-top:7px;">
+                <div class="col-md-3">
+                    <label for="drug"> Drug </label>
+                </div>
+                <div class="col-md-8">
+                    <select class="form-control" ng-model="drugChosen" ng-options="drugChosen.name for drugChosen in drugs track by drugChosen._id" ng-change="getBasicEvent(currentMasterPlan._id,drugChosen._id)">
+                    </select>
+                </div>
+            </div>
+<!--             <div class="form-group col-md-3" style="margin-top:7px;">
                 <div class="col-md-3">
                     <label for="drug"> KPI </label>
                 </div>
@@ -21,16 +30,16 @@
                     <select class="form-control" ng-model="KPIChosen" ng-options="KPIChosen.name for KPIChosen in KPI track by KPIChosen.id">
                     </select>
                 </div>
-            </div>
-            <input type="hidden" id="getBasicEvent" ng-click="getBasicEvent(drugChosen._id)">
+            </div> -->
+            <input type="hidden" id="getBasicEvent" ng-click="getBasicEvent(currentMasterPlan._id,drugChosen._id)">
         </div>
     </div>
     <div class="vertical_scroll_CasePlanner">
         <div gridster="gridsterOptionsCasePlanner">
             <ul class="with-3d-shadow with-transitions">
                 <!-- <div ng-repeat="case in events" > -->
-                <li gridster-item size-x="6" ng-repeat="case in events"> 
-                <!-- index {{$index}} -->
+                <li gridster-item size-x="6" ng-repeat="case in events">
+                    <!-- index {{$index}} -->
                     <div class="box-case">
                         <div class="box-header">
                             <h3>{{case.eventName }}</h3>
@@ -60,7 +69,7 @@
                                                 <td class="case-tabledetail">
                                                     <span inline-edit="quarterCase.quarterCaseSpend" inline-edit-validation="myValidator($index,newValue,case,quarter)" inline-edit-filter="currency" inline-edit-on-blur="cancel"></span>
                                                 </td>
-                                                <td>
+                                                <td ng-click="updateModel(case)">
                                                     <rzslider rz-slider-model="quarterCase.quarterCaseImpact" rz-slider-options="impactRange.options" style="margin-top:25px;margin-bottom:0px"></rzslider>
                                                 </td>
                                             </tr>
@@ -70,9 +79,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" id="updateModel" ng-click="updateModel(case)">
                 </li>
-                <!-- </div> -->
             </ul>
         </div>
     </div>
@@ -86,18 +93,14 @@
                     <h3 class="panel-title">Event Revenue Comparison</h3>
                 </div>
                 <div class="panel-body">
-                    <!-- <div id="charting-waterfall"> -->
                     <svg class="cases-waterfall"></svg>
-                    <!-- </div> -->
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 .col-lg-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <!-- <div class="col-md-12"> -->
                     <h3 class="panel-title">Event Impact</h3>
-                    <!-- </div> -->
                 </div>
                 <div class="panel-body" id="eventImpactHeightWidth">
                     <select class="form-control" ng-model="eventChosen" ng-options="eventChosen for eventChosen in eventsNames" ng-change="drawEventCaseImpact(eventChosen,events)">

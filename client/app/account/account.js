@@ -4,8 +4,8 @@ angular.module('clarosApp')
   .config(function($stateProvider) {
     $stateProvider.state('login', {
         url: '/',
-        templateUrl: 'app/account/login/login.html',
-        controller: 'LoginController',
+        templateUrl: 'app/home/home.html',
+        controller: 'homeCtrl',
         controllerAs: 'vm'
       })
       .state('logout', {

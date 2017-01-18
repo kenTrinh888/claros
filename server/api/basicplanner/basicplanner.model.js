@@ -1,16 +1,13 @@
 'use strict';
 
 import mongoose from 'mongoose';
-
+var Schema = mongoose.Schema;
 var BasicplannerSchema = new mongoose.Schema({
-    drug: { type: mongoose.Schema.Types.ObjectId, ref: "drug" },
+    drug: { type: Schema.ObjectId, ref: "Drug" },
+    masterplan: { type: Schema.ObjectId, ref: "Masterplan" },
     price: Boolean,
     eventName: String,
     expectedRevenue:Number,
-    // col: Number,
-    // row: Number,
-    // sizeY: Number,
-    // sizeX: Number,
     quarters: [{
             quaterName: String,
             quarterSpend: Number,

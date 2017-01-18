@@ -1,8 +1,11 @@
 'use strict';
 
 angular.module('clarosApp')
-    .controller('caseplannerController', function($scope, $http, $timeout, socket, $uibModal, $window) {
-        // ------------------------Seting of Gridster  -------------------------------------
+    .controller('caseplannerController', function($scope, $http, $timeout, socket, $uibModal, $window, MasterPlan) {
+        // Current MasterPlan
+        $scope.currentMasterPlan = MasterPlan.getCurrentMasterPlan();
+        console.log($scope.currentMasterPlan)
+            // ------------------------Seting of Gridster  -------------------------------------
         $('#arrangePosition').trigger('click');
         $scope.gridsterOptionsCasePlanner = {
             margins: [20, 20],
@@ -114,7 +117,7 @@ angular.module('clarosApp')
         // ------------------------Seting of Gridster  -------------------------------------
         // ------------------------Get the basic planner event-------------------------------------
         $scope.KPIChosen = { "id": 1, "name": "Revenue" }
-        $scope.KPI = [{ "id": 1, "name": "Revenue" }, { "id": 2, "name": "Volume" }]
+        $scope.KPI = [{ "id": 1, "name": "Revenue" }]
             // $scope.drugChosen = { "name": "Actemra, Polyarticular Juvenile Idiopathic Arthritis", "_id": "5799635dd33025fb02278423" }
         $http({
             method: 'GET',
@@ -122,28 +125,34 @@ angular.module('clarosApp')
         }).success(function(data) {
             // console.log(data)
             $scope.drugs = data;
-            $scope.drugChosen = $scope.drugs[0]
-            setTimeout(function() {
-                $('#getBasicEvent').trigger('click');
-
-            }, 100)
+            $scope.drugChosen = $scope.drugs[0];
+            if ($scope.currentMasterPlan != null) {
+                setTimeout(function() {
+                    $('#getBasicEvent').trigger('click');
+                }, 100)
+            }
+        }).error(function(data) {
+            console.log("Error retrieved Events");
+        });
+        $http({
+            method: 'GET',
+            url: '/api/masterplans/'
+        }).success(function(data) {
+            // console.log(data)
+            $scope.masterplans = data;
         }).error(function(data) {
             console.log("Error retrieved drugs");
         });
 
-        $scope.getBasicEvent = function(drugid) {
-                // console.log(drugid)
+        $scope.getBasicEvent = function(masterplanID, drugid) {
+                console.log(drugid)
+                var URLGet = '/api/basicplanners/' + drugid + "/" + masterplanID
+                console.log(URLGet);
                 $http({
                     method: 'GET',
-                    url: '/api/basicplanners/'
+                    url: URLGet
                 }).success(function(data) {
-                    $scope.events = [];
-                    for (var i in data) {
-                        var aEvent = data[i];
-                        if (aEvent.drug == drugid) {
-                            $scope.events.push(aEvent)
-                        }
-                    }
+                    $scope.events = data;
                     $scope.eventsNames = [];
                     for (var i in $scope.events) {
                         var anEvent = $scope.events[i];
@@ -163,7 +172,7 @@ angular.module('clarosApp')
                     }, 100);
 
                 }).error(function(data) {
-                    console.log("Error retrieved food order");
+                    console.log("Error retrieved Event order");
                 });
             }
             // ------------------------Get the basic planner event-------------------------------------
@@ -183,7 +192,11 @@ angular.module('clarosApp')
                     switch (label) {
                         default: return value + '%'
                     }
-                }
+                },
+                onChange: function(sliderId, modelValue, highValue, pointerType) {
+                    // console.log(sliderId)
+                    setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
+                },
             }
         };
         // ------------------------SliderRange -------------------------------------
@@ -209,7 +222,10 @@ angular.module('clarosApp')
 
             $(".cases-waterfall").empty();
             // console.log(data)
-            var water = { 'name': 'Base Case', 'value': _.random(20, 100) };
+            // var water = { 'name': 'Base Case', 'value': _.random(20, 100) };
+            var water = { 'name': 'Base Case' };
+            var waterFallBaseValue = $scope.currentMasterPlan.basicPlannerBaseCase;
+            water.value = waterFallBaseValue;
             dataWater.push(water);
             for (var i in dataChart) {
                 // console.log(i)
@@ -287,7 +303,13 @@ angular.module('clarosApp')
 
             chart.append("g")
                 .attr("class", "y axis")
-                .call(yAxis);
+                .call(yAxis)                
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("Revenue ('000 000)");
 
             var bar = chart.selectAll(".bar")
                 .data(dataWater)
@@ -392,7 +414,7 @@ angular.module('clarosApp')
         $scope.eventChosen = { "name": "Event 1" }
         $scope.drawEventCaseImpact = function(eventName, data) {
             // console.log(eventName)
-            console.log(data)
+            // console.log(data)
             var ImpactData = [];
             ImpactData.unshift($scope.quarters);
             // ImpactData.push($scope.baseCase);
@@ -473,7 +495,27 @@ angular.module('clarosApp')
         // ============================================Model Update============================================
         $scope.updateModel = function(event) {
                 console.log(event)
+
+                var sumOfBaseCaseImpact = 0;
+                var sumOfBestCaseImpact = 0;
+                var sumOfWorstCaseImpact = 0;
+                for (var i in event.quarters) {
+                    var aQuarterCase = event.quarters[i].quarterCases;
+
+                    for (var x in aQuarterCase) {
+                        var BaseCaseImpact = aQuarterCase[0].quarterCaseImpact;
+                        console.log(BaseCaseImpact);
+                        sumOfBaseCaseImpact += BaseCaseImpact;
+                        var BestCaseImpact = aQuarterCase[1].quarterCaseImpact;
+                        sumOfBestCaseImpact += BestCaseImpact;
+                        var WorstCaseImpact = aQuarterCase[2].quarterCaseImpact;
+                        sumOfWorstCaseImpact += WorstCaseImpact;
+                    }
                     // event.expectedRevenue = _.random(10,80)
+                }
+                var sumCalculation = sumOfBaseCaseImpact / 400;
+                console.log(sumCalculation);
+                event.expectedRevenue = sumOfBaseCaseImpact / 400 * $scope.currentMasterPlan.basicPlannerBaseCase;
                 $http({
                     method: 'PUT',
                     url: '/api/basicplanners/' + event._id,
@@ -495,10 +537,10 @@ angular.module('clarosApp')
                 console.log(event.price);
             }
             // ------------------------Recalculate the slider Position -------------------------------------
-        $scope.$on("slideEnded", function() {
-            setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
+            // $scope.$on("slideEnded", function() {
+            //     setTimeout(function() { $('#updateModel').trigger('click'); }, 100);
 
-        });
+        // });
 
         angular.element(window).on('resize', function(e) {
             $timeout(function() { $scope.resizeIpad(); }, 100)
